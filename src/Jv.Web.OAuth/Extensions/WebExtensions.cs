@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Jv.Json;
+using Jv.Web.OAuth.v1;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace Jv.Web.OAuth.Extensions
@@ -30,6 +34,55 @@ namespace Jv.Web.OAuth.Extensions
             }
 
             return queryString.ToString();
+        }
+
+        public static IDictionary<string, string> ParseUrlParameters(this string query)
+        {
+            return (from parameter in query.Substring(query.IndexOf('?') + 1).Split('&')
+                    let components = parameter.Split('=')
+                    let name = Uri.UnescapeDataString(components[0])
+                    let value = Uri.UnescapeDataString(components[1])
+                    select new KeyValuePair<string, string>(name, value))
+                   .ToDictionary(k => k.Key, k => k.Value);
+        }
+
+        public static string GetResponseString(this WebResponse response)
+        {
+            using (var reader = new StreamReader(response.GetResponseStream()))
+                return reader.ReadToEnd();
+        }
+
+        public static dynamic ReadResponse(this WebResponse webResponse, DataType dataType = DataType.Automatic)
+        {
+            using (var response = webResponse)
+            {
+                if (dataType == DataType.Automatic)
+                {
+                    switch (response.ContentType)
+                    {
+                        case "application/json":
+                            dataType = DataType.Json;
+                            break;
+                        default:
+                            dataType = DataType.Text;
+                            break;
+                    }
+                }
+
+                switch (dataType)
+                {
+                    case DataType.Text:
+                        return response.GetResponseString();
+
+                    case DataType.Json:
+                        return response.GetResponseString().AsJson();
+
+                    case DataType.UrlEncoded:
+                        return response.GetResponseString().ParseUrlParameters().ToExpandoObject();
+                }
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

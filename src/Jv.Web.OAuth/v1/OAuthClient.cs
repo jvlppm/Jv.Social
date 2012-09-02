@@ -28,11 +28,14 @@ namespace Jv.Web.OAuth.v1
         }
         #endregion
 
-        #region Private
-        private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters = null)
+        #region Public
+        public async Task<dynamic> Ajax(string url,
+            string type = "GET",
+            HttpParameters data = null,
+            DataType dataType = DataType.Automatic)
         {
-            var oauthParameters = GetOauthParameters(type, url, parameters.Fields);
-            return await HttpUtils.CreateHttpWebRequest(type, url, parameters.Union(oauthParameters));
+            var req = await CreateHttpWebRequest(type.ToString(), url, data);
+            return (await req.GetResponseAsync()).ReadResponse(dataType);
         }
 
         public IDictionary<string, string> GetOauthParameters(string requestType, string url, IEnumerable<KeyValuePair<string, string>> parameters = null)
@@ -54,6 +57,14 @@ namespace Jv.Web.OAuth.v1
             oauthParameters["oauth_signature"] = BuildSignature(requestType, url, oauthParameters.Union(parameters));
 
             return oauthParameters;
+        }
+        #endregion
+
+        #region Private
+        private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters = null)
+        {
+            var oauthParameters = GetOauthParameters(type, url, parameters.Fields);
+            return await HttpUtils.CreateHttpWebRequest(type, url, parameters.Union(oauthParameters));
         }
 
         static Random Random = new Random(Environment.TickCount);
