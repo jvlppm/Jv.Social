@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Jv.Web.OAuth.Extensions
 {
@@ -16,7 +11,8 @@ namespace Jv.Web.OAuth.Extensions
 
         public static HttpParameters Union(this HttpParameters first, IEnumerable<KeyValuePair<string, string>> second)
         {
-            var result = new HttpParameters(first);
+            var result = new HttpParameters();
+            result.AddRange(first);
             result.AddRange(second);
             return result;
         }

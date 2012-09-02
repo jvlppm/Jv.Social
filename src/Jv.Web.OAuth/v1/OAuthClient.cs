@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Jv.Web.OAuth.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
-using Jv.Web.OAuth.Extensions;
-using System.Net;
 
 namespace Jv.Web.OAuth.v1
 {
@@ -30,6 +29,12 @@ namespace Jv.Web.OAuth.v1
         #endregion
 
         #region Private
+        private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters = null)
+        {
+            var oauthParameters = GetOauthParameters(type, url, parameters.Fields);
+            return await HttpUtils.CreateHttpWebRequest(type, url, parameters.Union(oauthParameters));
+        }
+
         public IDictionary<string, string> GetOauthParameters(string requestType, string url, IEnumerable<KeyValuePair<string, string>> parameters = null)
         {
             parameters = parameters ?? Enumerable.Empty<KeyValuePair<string, string>>();

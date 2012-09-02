@@ -6,14 +6,18 @@ using Windows.Storage;
 
 namespace Jv.Web.OAuth
 {
-    public class HttpParameters : IEnumerable<KeyValuePair<string, object>>, IEnumerable<KeyValuePair<string, string>>, IEnumerable<KeyValuePair<string, StorageFile>>
+    public class HttpParameters : IEnumerable<KeyValuePair<string, object>>
     {
         List<KeyValuePair<string, object>> _parameters = new List<KeyValuePair<string, object>>();
 
-        public HttpParameters(HttpParameters parameters = null)
+        public IEnumerable<KeyValuePair<string, string>> Fields
         {
-            if (parameters != null)
-                _parameters.AddRange(parameters._parameters);
+            get { return _parameters.OfType<KeyValuePair<string, string>>(); }
+        }
+
+        public IEnumerable<KeyValuePair<string, StorageFile>> Files
+        {
+            get { return _parameters.OfType<KeyValuePair<string, StorageFile>>(); }
         }
 
         public void Add(string name, string value)
@@ -26,6 +30,11 @@ namespace Jv.Web.OAuth
             _parameters.Add(name, value);
         }
 
+        public void AddRange(HttpParameters parameters)
+        {
+            _parameters.AddRange(parameters._parameters);
+        }
+
         public void AddRange(IEnumerable<KeyValuePair<string, string>> keyValues)
         {
             _parameters.AddRange(keyValues.Select(kv => new KeyValuePair<string, object>(kv.Key, kv.Value)));
@@ -36,24 +45,14 @@ namespace Jv.Web.OAuth
             _parameters.AddRange(keyValues.Select(kv => new KeyValuePair<string, object>(kv.Key, kv.Value)));
         }
 
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-        {
-            return _parameters.GetEnumerator();
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _parameters.GetEnumerator();
         }
 
-        IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator()
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return _parameters.OfType<KeyValuePair<string, string>>().GetEnumerator();
-        }
-
-        IEnumerator<KeyValuePair<string, StorageFile>> IEnumerable<KeyValuePair<string, StorageFile>>.GetEnumerator()
-        {
-            return _parameters.OfType<KeyValuePair<string, StorageFile>>().GetEnumerator();
+            return GetEnumerator();
         }
     }
 }
