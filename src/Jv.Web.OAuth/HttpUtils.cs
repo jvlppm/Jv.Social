@@ -1,4 +1,5 @@
 ﻿using Jv.Web.OAuth.Extensions;
+using Jv.Web.OAuth.v1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,15 @@ namespace Jv.Web.OAuth
                     await mpart.CopyToAsync(reqStream);
             }
             return req;
+        }
+
+        public static async Task<dynamic> Ajax(string url,
+                    HttpParameters data = null,
+                    string type = "GET",
+                    DataType dataType = DataType.Automatic)
+        {
+            var ajaxRequest = await CreateHttpWebRequest(type.ToString(), url, data);
+            return await ajaxRequest.Request(dataType);
         }
 
         public static string BuildUrl(string url, IEnumerable<KeyValuePair<string, string>> parameters)

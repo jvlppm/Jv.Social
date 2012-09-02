@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Jv.Web.OAuth.Extensions
 {
@@ -44,6 +45,11 @@ namespace Jv.Web.OAuth.Extensions
                     let value = Uri.UnescapeDataString(components[1])
                     select new KeyValuePair<string, string>(name, value))
                    .ToDictionary(k => k.Key, k => k.Value);
+        }
+
+        public static async Task<dynamic> Request(this WebRequest req, DataType dataType = DataType.Automatic)
+        {
+            return (await req.GetResponseAsync()).ReadResponse(dataType);
         }
 
         public static string GetResponseString(this WebResponse response)
