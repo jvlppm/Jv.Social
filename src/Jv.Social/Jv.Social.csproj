@@ -104,7 +104,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Jv.Web.OAuth\Jv.Web.OAuth.csproj">
+      <Project>{441c4c7f-df55-420f-93ad-23e8c5cc42a7}</Project>
+      <Name>Jv.Web.OAuth</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
   </PropertyGroup>

@@ -1,4 +1,4 @@
-﻿namespace Jv.Web.OAuth.v1
+﻿namespace Jv.Web.OAuth
 {
     public enum DataType
     {
