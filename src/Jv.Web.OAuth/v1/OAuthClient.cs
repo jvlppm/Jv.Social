@@ -93,10 +93,10 @@ namespace Jv.Web.OAuth.v1
             if (Token != null && Token.Secret != null)
                 tokenSecret = Uri.EscapeDataString(Token.Secret);
 
-            IBuffer keyMaterial = (consumerSecret + "&" + tokenSecret).AsBufferUTF8();
+            IBuffer keyMaterial = (consumerSecret + "&" + tokenSecret).AsBufferAscii();
             MacAlgorithmProvider hmacSha1Provider = MacAlgorithmProvider.OpenAlgorithm("HMAC_SHA1");
             CryptographicKey macKey = hmacSha1Provider.CreateKey(keyMaterial);
-            IBuffer dataToBeSigned = signatureBase.AsBufferUTF8();
+            IBuffer dataToBeSigned = signatureBase.AsBufferAscii();
             IBuffer signatureBuffer = CryptographicEngine.Sign(macKey, dataToBeSigned);
             return CryptographicBuffer.EncodeToBase64String(signatureBuffer);
         }

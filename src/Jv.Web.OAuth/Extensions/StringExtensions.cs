@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 
 namespace Jv.Web.OAuth.Extensions
 {
@@ -26,6 +29,11 @@ namespace Jv.Web.OAuth.Extensions
                 using (var dr = new DataReader(bw.BaseStream.AsInputStream()))
                     return dr.DetachBuffer();
             }
+        }
+
+        public static IBuffer AsBufferAscii(this string str)
+        {
+            return str.ToCharArray().Select(c => (byte)(int)c).ToArray().AsBuffer();
         }
     }
 }

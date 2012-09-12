@@ -10,14 +10,21 @@ namespace Jv.Web.OAuth
     {
         List<KeyValuePair<string, object>> _parameters = new List<KeyValuePair<string, object>>();
 
+        IEnumerable<KeyValuePair<string, T>> OfType<T>()
+        {
+            return from param in _parameters
+                   where param.Value is T
+                   select new KeyValuePair<string, T>(param.Key, (T)param.Value);
+        }
+
         public IEnumerable<KeyValuePair<string, string>> Fields
         {
-            get { return _parameters.OfType<KeyValuePair<string, string>>(); }
+            get { return OfType<string>(); }
         }
 
         public IEnumerable<KeyValuePair<string, StorageFile>> Files
         {
-            get { return _parameters.OfType<KeyValuePair<string, StorageFile>>(); }
+            get { return OfType<StorageFile>(); }
         }
 
         public void Add(string name, string value)
