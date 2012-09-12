@@ -36,5 +36,16 @@ namespace Jv.Web.OAuth
             return new KeyPair(pair.key, pair.secret);
         }
         #endregion
+
+        public override bool Equals(object obj)
+        {
+            if (obj is KeyPair)
+            {
+                var kp = (KeyPair)obj;
+                return kp.Key == Key && kp.Secret == Secret;
+            }
+
+            return base.Equals(obj);
+        }
     }
 }

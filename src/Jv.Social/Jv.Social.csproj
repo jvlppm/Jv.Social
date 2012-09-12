@@ -99,6 +99,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ApplicationInfo.cs" />
+    <Compile Include="TokenInfo.cs" />
+    <Compile Include="Google\GoogleLogin.cs" />
+    <Compile Include="Google\Orkut\OrkutClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +114,7 @@
       <Name>Jv.Web.OAuth</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
   </PropertyGroup>
