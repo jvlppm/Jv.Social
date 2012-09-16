@@ -1,9 +1,9 @@
 ﻿using Jv.Web.OAuth;
+using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.v1;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using System.Net;
 using System.Threading.Tasks;
 using Windows.Foundation;
 
@@ -11,8 +11,11 @@ namespace Jv.Social.Google.Orkut
 {
     public sealed class OrkutClient
     {
+        #region Properties
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal OAuthClient OAuthClient { get; private set; }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         TokenInfo _token;
         public TokenInfo Token
         {
@@ -24,6 +27,7 @@ namespace Jv.Social.Google.Orkut
                 return _token;
             }
         }
+        #endregion
 
         #region Login
         internal OrkutClient(OAuthClient oAuthClient)
@@ -46,10 +50,17 @@ namespace Jv.Social.Google.Orkut
 
         internal static async Task<OrkutClient> Login(KeyPair applicationInfo)
         {
-            var login = new GoogleLogin(applicationInfo, "http://orkut.gmodules.com/social");
-            var oAuthClient = await login.Login();
+            try
+            {
+                var login = new GoogleLogin(applicationInfo, "http://orkut.gmodules.com/social");
+                var oAuthClient = await login.Login();
 
-            return new OrkutClient(oAuthClient);
+                return new OrkutClient(oAuthClient);
+            }
+            catch (WebException ex)
+            {
+                throw new Exception(ex.Response.GetResponseString());
+            }
         }
         #endregion
     }
