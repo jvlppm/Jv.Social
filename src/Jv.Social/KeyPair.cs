@@ -3,12 +3,12 @@ using System.Diagnostics;
 
 namespace Jv.Social
 {
-    public sealed class TokenInfo
+    public sealed class KeyInfo
     {
         #region Static
-        public static TokenInfo Parse(string tokenInfo)
+        public static KeyInfo Parse(string tokenInfo)
         {
-            return new TokenInfo(KeyPair.Parse(tokenInfo));
+            return new KeyInfo(KeyPair.Parse(tokenInfo));
         }
         #endregion
 
@@ -16,16 +16,16 @@ namespace Jv.Social
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal KeyPair KeyPair { get; private set; }
 
-        public string Token { get { return KeyPair.Key; } }
-        public string TokenSecret { get { return KeyPair.Secret; } }
+        public string Key { get { return KeyPair.Key; } }
+        public string Secret { get { return KeyPair.Secret; } }
         #endregion
 
         #region Constructors
-        public TokenInfo(string token, string tokenSecret)
+        public KeyInfo(string key, string secret)
         {
-            KeyPair = new KeyPair(token, tokenSecret);
+            KeyPair = new KeyPair(key, secret);
         }
-        internal TokenInfo(KeyPair keyPair)
+        internal KeyInfo(KeyPair keyPair)
         {
             KeyPair = keyPair;
         }
@@ -33,14 +33,16 @@ namespace Jv.Social
 
         public override bool Equals(object obj)
         {
-            if(obj is KeyPair)
+            if (obj is KeyPair)
                 return KeyPair.Equals(obj as KeyPair);
+            if (obj is KeyInfo)
+                return KeyPair.Equals(((KeyInfo)obj).KeyPair);
 
             return base.Equals(obj);
         }
         public override int GetHashCode()
         {
-            return TokenSecret.GetHashCode();
+            return Secret.GetHashCode();
         }
         public override string ToString()
         {

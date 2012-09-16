@@ -16,14 +16,14 @@ namespace Jv.Social.Google.Orkut
         internal OAuthClient OAuthClient { get; private set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        TokenInfo _token;
-        public TokenInfo Token
+        KeyInfo _token;
+        public KeyInfo Token
         {
             set { OAuthClient.Token = value.KeyPair; }
             get
             {
                 if (_token == null || !_token.Equals(OAuthClient.Token))
-                    _token = new TokenInfo(OAuthClient.Token);
+                    _token = new KeyInfo(OAuthClient.Token);
                 return _token;
             }
         }
@@ -38,12 +38,12 @@ namespace Jv.Social.Google.Orkut
             OAuthClient = oAuthClient;
         }
 
-        public OrkutClient(ApplicationInfo applicationInfo, TokenInfo token)
+        public OrkutClient(KeyInfo applicationInfo, KeyInfo token)
             : this(new OAuthClient(applicationInfo.KeyPair, token.KeyPair))
         {
         }
 
-        public static IAsyncOperation<OrkutClient> Login(ApplicationInfo applicationInfo)
+        public static IAsyncOperation<OrkutClient> Login(KeyInfo applicationInfo)
         {
             return Login(applicationInfo.KeyPair).AsAsyncOperation();
         }
