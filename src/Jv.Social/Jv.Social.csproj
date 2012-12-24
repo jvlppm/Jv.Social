@@ -99,7 +99,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="KeyPair.cs" />
+    <Compile Include="Base\KeyPair.cs" />
     <Compile Include="Google\GoogleLogin.cs" />
     <Compile Include="Google\Orkut\OrkutClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

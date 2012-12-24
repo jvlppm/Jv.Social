@@ -1,7 +1,7 @@
 ﻿using Jv.Web.OAuth;
 using System.Diagnostics;
 
-namespace Jv.Social
+namespace Jv.Social.Base
 {
     public sealed class KeyInfo
     {

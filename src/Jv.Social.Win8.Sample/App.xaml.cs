@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
-namespace Jv.Social.Metro.Sample
+namespace Jv.Social.Win8.Sample
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

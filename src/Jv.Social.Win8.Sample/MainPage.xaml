@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="Jv.Social.Metro.Sample.MainPage"
+    x:Class="Jv.Social.Win8.Sample.MainPage"
     IsTabStop="false"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

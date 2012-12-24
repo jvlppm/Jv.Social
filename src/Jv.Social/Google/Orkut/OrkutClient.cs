@@ -1,4 +1,5 @@
-﻿using Jv.Web.OAuth;
+﻿using Jv.Social.Base;
+using Jv.Web.OAuth;
 using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.v1;
 using System;

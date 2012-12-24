@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jv.Social.Base;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Jv.Social.Metro.Sample
+namespace Jv.Social.Win8.Sample
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -33,7 +34,7 @@ namespace Jv.Social.Metro.Sample
         /// property is typically used to configure the page.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-
+            
         }
     }
 }
