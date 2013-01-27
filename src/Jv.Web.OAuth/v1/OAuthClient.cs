@@ -63,6 +63,7 @@ namespace Jv.Web.OAuth.v1
         #region Private
         private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters = null)
         {
+            parameters = parameters ?? new HttpParameters();
             var oauthParameters = GetOauthParameters(type, url, parameters.Fields);
             return await HttpUtils.CreateHttpWebRequest(type, url, parameters.Union(oauthParameters));
         }

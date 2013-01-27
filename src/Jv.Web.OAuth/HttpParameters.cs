@@ -27,6 +27,26 @@ namespace Jv.Web.OAuth
             get { return OfType<StorageFile>(); }
         }
 
+        public HttpParameters FieldParameters
+        {
+            get
+            {
+                var fieldParams = new HttpParameters();
+                fieldParams.AddRange(Fields);
+                return fieldParams;
+            }
+        }
+
+        public HttpParameters FileParameters
+        {
+            get
+            {
+                var fileParams = new HttpParameters();
+                fileParams.AddRange(Files);
+                return fileParams;
+            }
+        }
+
         public void Add(string name, string value)
         {
             _parameters.Add(name, value);

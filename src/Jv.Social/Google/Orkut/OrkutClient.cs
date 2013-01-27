@@ -13,11 +13,6 @@ namespace Jv.Social.Google.Orkut
     public sealed class OrkutClient
     {
         #region Properties
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal OAuthClient OAuthClient { get; private set; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        KeyInfo _token;
         public KeyInfo Token
         {
             set { OAuthClient.Token = value.KeyPair; }
@@ -28,17 +23,17 @@ namespace Jv.Social.Google.Orkut
                 return _token;
             }
         }
+
+        #region Internal
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal OAuthClient OAuthClient { get; private set; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        KeyInfo _token;
+        #endregion
         #endregion
 
         #region Login
-        internal OrkutClient(OAuthClient oAuthClient)
-        {
-            if (oAuthClient == null)
-                throw new System.ArgumentNullException();
-
-            OAuthClient = oAuthClient;
-        }
-
         public OrkutClient(KeyInfo applicationInfo, KeyInfo token)
             : this(new OAuthClient(applicationInfo.KeyPair, token.KeyPair))
         {
@@ -47,6 +42,15 @@ namespace Jv.Social.Google.Orkut
         public static IAsyncOperation<OrkutClient> Login(KeyInfo applicationInfo)
         {
             return Login(applicationInfo.KeyPair).AsAsyncOperation();
+        }
+
+        #region Internal
+        internal OrkutClient(OAuthClient oAuthClient)
+        {
+            if (oAuthClient == null)
+                throw new System.ArgumentNullException();
+
+            OAuthClient = oAuthClient;
         }
 
         internal static async Task<OrkutClient> Login(KeyPair applicationInfo)
@@ -63,6 +67,7 @@ namespace Jv.Social.Google.Orkut
                 throw new Exception(ex.Response.GetResponseString());
             }
         }
+        #endregion
         #endregion
     }
 }
