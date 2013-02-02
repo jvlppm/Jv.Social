@@ -100,11 +100,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Base\KeyPair.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Google\GoogleLogin.cs" />
     <Compile Include="Google\Orkut\OrkutClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Base\SafeDynamic.cs" />
+    <Compile Include="Twitter\Tweet.cs" />
     <Compile Include="Twitter\TwitterClient.cs" />
     <Compile Include="Twitter\TwitterLogin.cs" />
+    <Compile Include="Twitter\User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -79,7 +79,7 @@ namespace Jv.Social.Twitter
             try
             {
                 var req = await CreateHttpWebRequest(resource, type, data);
-                return await req.Request(DataType.Json);
+                return new SafeDynamic(await req.Request(DataType.Json));
             }
             catch (WebException ex)
             {
@@ -100,21 +100,21 @@ namespace Jv.Social.Twitter
         }
         #endregion
 
-        /*public IAsyncOperation<dynamic> CurrentUser()
+        public IAsyncOperation<User> CurrentUser()
         {
             return Ajax(
                 resource: "account/verify_credentials",
                 type: "GET"
-            ).AsAsyncOperation();
+            ).Select(d => new User(d)).AsAsyncOperation();
         }
 
-        public IAsyncOperation<dynamic> Tweet(string status)
+        public IAsyncOperation<Tweet> Tweet(string status)
         {
             return Ajax(
                 resource: "statuses/update",
                 data: new HttpParameters { { "status", status } },
                 type: "POST"
-            ).AsAsyncOperation();
-        }*/
+            ).Select(d => new Tweet(d)).AsAsyncOperation();
+        }
     }
 }
