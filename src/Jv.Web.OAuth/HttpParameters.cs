@@ -8,7 +8,19 @@ namespace Jv.Web.OAuth
 {
     public class HttpParameters : IEnumerable<KeyValuePair<string, object>>
     {
-        List<KeyValuePair<string, object>> _parameters = new List<KeyValuePair<string, object>>();
+        public HttpParameters()
+            : this(null)
+        {
+        }
+
+        public HttpParameters(HttpParameters parameters)
+        {
+            _parameters = new List<KeyValuePair<string, object>>();
+            if (parameters != null)
+                AddRange(parameters);
+        }
+
+        List<KeyValuePair<string, object>> _parameters;
 
         IEnumerable<KeyValuePair<string, T>> OfType<T>()
         {

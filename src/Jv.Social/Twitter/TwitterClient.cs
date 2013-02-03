@@ -74,47 +74,36 @@ namespace Jv.Social.Twitter
         #endregion
 
         #region Core
-        internal async Task<dynamic> Ajax(string resource, string type, HttpParameters data = null)
+        internal async Task<T> Get<T>(string resource, HttpParameters data = null) where T : class
         {
-            try
-            {
-                var req = await CreateHttpWebRequest(resource, type, data);
-                return new SafeDynamic(await req.Request(DataType.Json));
-            }
-            catch (WebException ex)
-            {
-                throw new Exception(ex.Response.GetResponseString());
-            }
+            return Extensions.Create<T>(await Ajax(resource, "GET", data));
         }
 
-        private async Task<WebRequest> CreateHttpWebRequest(string resource, string type, HttpParameters data = null)
+        internal async Task<T> Post<T>(string resource, HttpParameters data = null) where T : class
         {
-            data = data ?? new HttpParameters();
-            string baseUrl = string.Format("http://api.twitter.com/1.1/{0}.json", resource);
+            return Extensions.Create<T>(await Ajax(resource, "POST", data));
+        }
 
-            var oAuthParams = OAuthClient.GetOauthParameters(type, baseUrl, data.Fields);
-            data.AddRange(oAuthParams);
-
-            string url = HttpUtils.BuildUrl(baseUrl, data.Fields);
-            return await HttpUtils.CreateHttpWebRequest(type, url, data.FileParameters);
+        internal async Task<dynamic> Ajax(string resource, string type, HttpParameters data = null)
+        {
+            string url = string.Format("http://api.twitter.com/1.1/{0}.json", resource);
+            return await OAuthClient.Ajax(url, type, data, DataType.Json, WebRequestFormat.MixedUrlMultipart);
         }
         #endregion
 
         public IAsyncOperation<User> CurrentUser()
         {
-            return Ajax(
-                resource: "account/verify_credentials",
-                type: "GET"
-            ).Select(d => new User(d)).AsAsyncOperation();
+            return Get<User>(
+                resource: "account/verify_credentials"
+            ).AsAsyncOperation();
         }
 
         public IAsyncOperation<Tweet> Tweet(string status)
         {
-            return Ajax(
+            return Post<Tweet>(
                 resource: "statuses/update",
-                data: new HttpParameters { { "status", status } },
-                type: "POST"
-            ).Select(d => new Tweet(d)).AsAsyncOperation();
+                data: new HttpParameters { { "status", status } }
+            ).AsAsyncOperation();
         }
     }
 }

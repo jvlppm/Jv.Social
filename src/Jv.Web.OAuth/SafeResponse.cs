@@ -4,12 +4,12 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 
-namespace Jv.Social
+namespace Jv.Web.OAuth
 {
-    internal class SafeDynamic : DynamicObject
+    public class SafeResponse : DynamicObject
     {
         IDictionary<string, object> _obj;
-        public SafeDynamic(IDictionary<string, object> dict)
+        public SafeResponse(IDictionary<string, object> dict)
         {
             _obj = dict;
         }
@@ -21,7 +21,7 @@ namespace Jv.Social
                 result = _obj[binder.Name];
                 var resultAsDict = result as IDictionary<string, object>;
                 if (resultAsDict != null)
-                    result = new SafeDynamic(resultAsDict);
+                    result = new SafeResponse(resultAsDict);
             }
             else
                 result = null;

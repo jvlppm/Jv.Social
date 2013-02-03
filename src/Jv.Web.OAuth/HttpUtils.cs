@@ -26,7 +26,7 @@ namespace Jv.Web.OAuth
                 await mpart.AddFileAsync(f.Key, f.Value);
 
             var req = HttpWebRequest.Create(type == "GET" ? BuildUrl(url, parameters.Fields) : url);
-            req.Method = type.ToString();
+            req.Method = type;
 
             if (!mpart.IsEmpty)
             {

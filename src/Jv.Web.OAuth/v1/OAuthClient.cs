@@ -29,13 +29,47 @@ namespace Jv.Web.OAuth.v1
         #endregion
 
         #region Public
+        /// <summary>
+        /// Execute an asynchronous web request, and parse its response.
+        /// </summary>
+        /// <param name="url">The URI that identifies the Internet resource.</param>
+        /// <param name="type">The protocol method to use in this request.</param>
+        /// <param name="data">Data to be sent.</param>
+        /// <param name="dataType">Requested data format.</param>
+        /// <param name="requestFormat">Defines in which way data will be sent in the web request.</param>
+        /// <param name="useSafeResponse">Assume that an undefined property, in the response object, have its value to null.</param>
+        /// <param name="readResponseError">If a WebException is received, try to read its content and use it as an exception message.</param>
+        /// <returns></returns>
         public async Task<dynamic> Ajax(string url,
             string type = "GET",
             HttpParameters data = null,
-            DataType dataType = DataType.Automatic)
+            DataType dataType = DataType.Automatic,
+            WebRequestFormat requestFormat = WebRequestFormat.MultiPart,
+            bool useSafeResponse = true,
+            bool readResponseError = true)
         {
-            var req = await CreateHttpWebRequest(type.ToString(), url, data);
-            return (await req.GetResponseAsync()).ReadResponse(dataType);
+            try
+            {
+                var req = await CreateHttpWebRequest(type, url, data, requestFormat);
+                var resp = await req.Request(dataType);
+                if (resp is IDictionary<string, object> && useSafeResponse)
+                    return new SafeResponse(resp);
+                return resp;
+            }
+            catch (WebException ex)
+            {
+                if (readResponseError)
+                    throw new WebException(ex.Response.GetResponseString(), ex, ex.Status, ex.Response);
+                throw ex;
+            }
+        }
+
+        public HttpParameters Sign(string requestType, string url, HttpParameters parameters)
+        {
+            var signed = new HttpParameters(parameters);
+            var oAuthParams = GetOauthParameters(requestType, url, signed.Fields);
+            signed.AddRange(oAuthParams);
+            return signed;
         }
 
         public IDictionary<string, string> GetOauthParameters(string requestType, string url, IEnumerable<KeyValuePair<string, string>> parameters = null)
@@ -61,11 +95,21 @@ namespace Jv.Web.OAuth.v1
         #endregion
 
         #region Private
-        private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters = null)
+        private async Task<WebRequest> CreateHttpWebRequest(string type, string url, HttpParameters parameters, WebRequestFormat requestFormat)
         {
-            parameters = parameters ?? new HttpParameters();
-            var oauthParameters = GetOauthParameters(type, url, parameters.Fields);
-            return await HttpUtils.CreateHttpWebRequest(type, url, parameters.Union(oauthParameters));
+            parameters = Sign(type, url, parameters);
+
+            switch (requestFormat)
+            {
+                case WebRequestFormat.MultiPart:
+                    return await HttpUtils.CreateHttpWebRequest(type, url, parameters);
+
+                case WebRequestFormat.MixedUrlMultipart:
+                    string urlWithParams = HttpUtils.BuildUrl(url, parameters.Fields);
+                    return await HttpUtils.CreateHttpWebRequest(type, urlWithParams, parameters.FileParameters);
+            }
+
+            throw new NotImplementedException();
         }
 
         static Random Random = new Random(Environment.TickCount);
