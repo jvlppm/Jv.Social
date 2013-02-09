@@ -62,9 +62,17 @@ namespace Jv.Web.OAuth.Extensions
         {
             using (var response = webResponse)
             {
+                Dictionary<string, string> contentParameters = null;
+
                 if (dataType == DataType.Automatic)
                 {
-                    switch (response.ContentType)
+                    var contentType = response.ContentType.Split(';');
+                    contentParameters = (from s in contentType.Skip(1)
+                                         let ss = s.Trim(' ').Split('=')
+                                         select new KeyValuePair<string, string>(ss[0], ss[1]))
+                                        .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                    switch (contentType[0])
                     {
                         case "application/json":
                             dataType = DataType.Json;

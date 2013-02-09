@@ -59,6 +59,16 @@ namespace Jv.Web.OAuth
             }
         }
 
+        public HttpParameters NotNullParameters
+        {
+            get
+            {
+                var notNullParams = new HttpParameters();
+                notNullParams._parameters.AddRange(_parameters.Where(p => p.Value != null));
+                return notNullParams;
+            }
+        }
+
         public void Add(string name, string value)
         {
             _parameters.Add(name, value);

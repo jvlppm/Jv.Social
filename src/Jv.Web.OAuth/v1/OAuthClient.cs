@@ -37,7 +37,7 @@ namespace Jv.Web.OAuth.v1
         /// <param name="data">Data to be sent.</param>
         /// <param name="dataType">Requested data format.</param>
         /// <param name="requestFormat">Defines in which way data will be sent in the web request.</param>
-        /// <param name="useSafeResponse">Assume that an undefined property, in the response object, have its value to null.</param>
+        /// <param name="implicitNullValues">Do not send null values and assume that an undefined property, in the response object, have its value to null.</param>
         /// <param name="readResponseError">If a WebException is received, try to read its content and use it as an exception message.</param>
         /// <returns></returns>
         public async Task<dynamic> Ajax(string url,
@@ -45,14 +45,14 @@ namespace Jv.Web.OAuth.v1
             HttpParameters data = null,
             DataType dataType = DataType.Automatic,
             WebRequestFormat requestFormat = WebRequestFormat.MultiPart,
-            bool useSafeResponse = true,
+            bool implicitNullValues = true,
             bool readResponseError = true)
         {
             try
             {
-                var req = await CreateHttpWebRequest(type, url, data, requestFormat);
+                var req = await CreateHttpWebRequest(type, url, data != null && implicitNullValues ? data.NotNullParameters : data, requestFormat);
                 var resp = await req.Request(dataType);
-                if (resp is IDictionary<string, object> && useSafeResponse)
+                if (resp is IDictionary<string, object> && implicitNullValues)
                     return new SafeResponse(resp);
                 return resp;
             }

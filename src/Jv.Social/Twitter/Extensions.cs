@@ -15,7 +15,7 @@ namespace Jv.Social.Twitter
             if (typeof(T) == typeof(Tweet))
                 return new Tweet(obj) as T;
 
-            throw new NotImplementedException();
+            throw new NotImplementedException("Cannot create instance of " + typeof(T).FullName + ".");
         }
     }
 }
