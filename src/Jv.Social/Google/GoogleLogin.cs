@@ -3,7 +3,7 @@ using Jv.Web.OAuth.v1;
 
 namespace Jv.Social.Google
 {
-    internal class GoogleLogin : OAuthLogin
+    public class GoogleLogin : OAuthLogin
     {
         string UrlScope { get; set; }
 

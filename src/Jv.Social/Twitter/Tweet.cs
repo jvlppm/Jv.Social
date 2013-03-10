@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace Jv.Social.Twitter
 {
-    public class Tweet
+    public class Tweet : Object
     {
-        dynamic _obj;
         internal Tweet(dynamic tweet)
+            : base((object)tweet)
         {
-            _obj = tweet;
         }
 
         /// <summary>

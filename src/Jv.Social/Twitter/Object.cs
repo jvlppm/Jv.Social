@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace Jv.Social.Twitter
 {
-    static class Extensions
+    public class Object
     {
+        internal dynamic _obj;
+        internal Object(dynamic obj)
+        {
+            _obj = obj;
+        }
+
         public static T Create<T>(dynamic obj) where T : class
         {
             if (typeof(T) == typeof(User))

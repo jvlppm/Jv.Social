@@ -1,5 +1,4 @@
-﻿using Jv.Social.Base;
-using Jv.Web.OAuth;
+﻿using Jv.Web.OAuth;
 using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.v1;
 using System;
@@ -13,47 +12,24 @@ namespace Jv.Social.Google.Orkut
     public sealed class OrkutClient
     {
         #region Properties
-        public KeyInfo Token
-        {
-            set { OAuthClient.Token = value.KeyPair; }
-            get
-            {
-                if (_token == null || !_token.Equals(OAuthClient.Token))
-                    _token = new KeyInfo(OAuthClient.Token);
-                return _token;
-            }
-        }
-
-        #region Internal
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal OAuthClient OAuthClient { get; private set; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        KeyInfo _token;
-        #endregion
+        public OAuthClient OAuthClient { get; private set; }
         #endregion
 
         #region Login
-        public OrkutClient(KeyInfo applicationInfo, KeyInfo token)
-            : this(new OAuthClient(applicationInfo.KeyPair, token.KeyPair))
-        {
-        }
-
-        public static IAsyncOperation<OrkutClient> Login(KeyInfo applicationInfo)
-        {
-            return Login(applicationInfo.KeyPair).AsAsyncOperation();
-        }
-
-        #region Internal
-        internal OrkutClient(OAuthClient oAuthClient)
+        public OrkutClient(OAuthClient oAuthClient)
         {
             if (oAuthClient == null)
-                throw new System.ArgumentNullException();
+                throw new System.ArgumentNullException("oAuthClient");
 
             OAuthClient = oAuthClient;
         }
 
-        internal static async Task<OrkutClient> Login(KeyPair applicationInfo)
+        public OrkutClient(KeyPair applicationInfo, KeyPair token)
+            : this(new OAuthClient(applicationInfo, token))
+        {
+        }
+
+        public static async Task<OrkutClient> Login(KeyPair applicationInfo)
         {
             try
             {
@@ -67,7 +43,6 @@ namespace Jv.Social.Google.Orkut
                 throw new Exception(ex.Response.GetResponseString());
             }
         }
-        #endregion
         #endregion
     }
 }

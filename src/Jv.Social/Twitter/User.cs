@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Jv.Social.Twitter
 {
-    public class User
+    public class User : Object
     {
-        dynamic _obj;
         internal User(dynamic user)
+            : base((object)user)
         {
-            _obj = user;
         }
 
         /// <summary>

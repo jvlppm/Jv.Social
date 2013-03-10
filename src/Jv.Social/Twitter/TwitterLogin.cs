@@ -3,7 +3,7 @@ using Jv.Web.OAuth.v1;
 
 namespace Jv.Social.Twitter
 {
-    internal class TwitterLogin : OAuthLogin
+    public class TwitterLogin : OAuthLogin
     {
         string UrlScope { get; set; }
 

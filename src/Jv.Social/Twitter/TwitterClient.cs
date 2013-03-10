@@ -1,5 +1,4 @@
-﻿using Jv.Social.Base;
-using Jv.Web.OAuth;
+﻿using Jv.Web.OAuth;
 using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.v1;
 using System;
@@ -19,39 +18,11 @@ namespace Jv.Social.Twitter
     public sealed class TwitterClient
     {
         #region Properties
-        public KeyInfo Token
-        {
-            set { OAuthClient.Token = value.KeyPair; }
-            get
-            {
-                if (_token == null || !_token.Equals(OAuthClient.Token))
-                    _token = new KeyInfo(OAuthClient.Token);
-                return _token;
-            }
-        }
-
-        #region Internal
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal OAuthClient OAuthClient { get; private set; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        KeyInfo _token;
-        #endregion
+        public OAuthClient OAuthClient { get; private set; }
         #endregion
 
         #region Login
-        public TwitterClient(KeyInfo applicationInfo, KeyInfo token)
-            : this(new OAuthClient(applicationInfo.KeyPair, token.KeyPair))
-        {
-        }
-
-        public static IAsyncOperation<TwitterClient> Login(KeyInfo applicationInfo)
-        {
-            return Login(applicationInfo.KeyPair).AsAsyncOperation();
-        }
-
-        #region Internal
-        internal TwitterClient(OAuthClient oAuthClient)
+        public TwitterClient(OAuthClient oAuthClient)
         {
             if (oAuthClient == null)
                 throw new System.ArgumentNullException();
@@ -59,7 +30,12 @@ namespace Jv.Social.Twitter
             OAuthClient = oAuthClient;
         }
 
-        internal static async Task<TwitterClient> Login(KeyPair applicationInfo)
+        public TwitterClient(KeyPair applicationInfo, KeyPair token)
+            : this(new OAuthClient(applicationInfo, token))
+        {
+        }
+
+        public static async Task<TwitterClient> Login(KeyPair applicationInfo)
         {
             try
             {
@@ -74,20 +50,19 @@ namespace Jv.Social.Twitter
             }
         }
         #endregion
-        #endregion
 
         #region Core
-        internal async Task<T> Get<T>(string resource, HttpParameters data = null) where T : class
+        public async Task<T> Get<T>(string resource, HttpParameters data = null) where T : class
         {
-            return Extensions.Create<T>(await Ajax(resource, "GET", data));
+            return Object.Create<T>(await Ajax(resource, "GET", data));
         }
 
-        internal async Task<T> Post<T>(string resource, HttpParameters data = null) where T : class
+        public async Task<T> Post<T>(string resource, HttpParameters data = null) where T : class
         {
-            return Extensions.Create<T>(await Ajax(resource, "POST", data));
+            return Object.Create<T>(await Ajax(resource, "POST", data));
         }
 
-        internal async Task<dynamic> Ajax(string resource, string type, HttpParameters data = null)
+        public async Task<dynamic> Ajax(string resource, string type, HttpParameters data = null)
         {
             string url = string.Format("http://api.twitter.com/1.1/{0}.json", resource);
             return await OAuthClient.Ajax(url, type, data, DataType.Json, WebRequestFormat.MixedUrlMultipart);
@@ -105,7 +80,7 @@ namespace Jv.Social.Twitter
         /// </summary>
         /// <param name="status">The text of your status update, typically up to 140 characters.</param>
         /// <returns>Tweet operation</returns>
-        public IAsyncOperation<Tweet> Tweet(string status)
+        public Task<Tweet> Tweet(string status)
         {
             return Tweet(status, inReplyToStatusId: null, location: null);
         }
@@ -119,7 +94,7 @@ namespace Jv.Social.Twitter
         ///     Note: This parameter will be ignored unless the author of the tweet this parameter references is mentioned within the status text. Therefore, you must include @username, where username is the author of the referenced tweet, within the update.
         /// </param>
         /// <returns>Tweet operation</returns>
-        public IAsyncOperation<Tweet> Reply(string status, string inReplyToStatusId)
+        public Task<Tweet> Tweet(string status, string inReplyToStatusId)
         {
             return Tweet(status, inReplyToStatusId, location: null);
         }
@@ -130,7 +105,7 @@ namespace Jv.Social.Twitter
         /// <param name="status">The text of your status update, typically up to 140 characters.</param>
         /// <param name="location">The location (lat/long) this tweet refers to.</param>
         /// <returns>Tweet operation</returns>
-        public IAsyncOperation<Tweet> Tweet(string status, Geocoordinate location)
+        public Task<Tweet> Tweet(string status, Geocoordinate location)
         {
             return Tweet(status, inReplyToStatusId: null, location: location);
         }
@@ -145,7 +120,7 @@ namespace Jv.Social.Twitter
         /// </param>
         /// <param name="location">The location (lat/long) this tweet refers to.</param>
         /// <returns>Tweet operation</returns>
-        public IAsyncOperation<Tweet> Tweet(string status, string inReplyToStatusId, Geocoordinate location)
+        public Task<Tweet> Tweet(string status, string inReplyToStatusId, Geocoordinate location)
         {
             var parameters = new HttpParameters {
                     { "status", status },
@@ -161,7 +136,7 @@ namespace Jv.Social.Twitter
             return Post<Tweet>(
                 resource: "statuses/update",
                 data: parameters
-            ).AsAsyncOperation();
+            );
         }
 
 
@@ -170,19 +145,19 @@ namespace Jv.Social.Twitter
         /// </summary>
         /// <param name="id">The ID of the desired status.</param>
         /// <returns>Returns the original tweet with retweet details embedded.</returns>
-        public IAsyncOperation<Tweet> Retweet(string id)
+        public Task<Tweet> Retweet(string id)
         {
             return Post<Tweet>(
                    resource: "statuses/retweet/" + id
-               ).AsAsyncOperation();
+               );
         }
         #endregion
 
-        public IAsyncOperation<User> CurrentUser()
+        public Task<User> CurrentUser()
         {
             return Get<User>(
                 resource: "account/verify_credentials"
-            ).AsAsyncOperation();
+            );
         }
         #endregion
     }
