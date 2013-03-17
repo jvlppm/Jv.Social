@@ -22,19 +22,20 @@ namespace Jv.Web.OAuth
 
         List<KeyValuePair<string, object>> _parameters;
 
-        IEnumerable<KeyValuePair<string, T>> OfType<T>()
+        IDictionary<string, T> OfType<T>()
         {
-            return from param in _parameters
-                   where param.Value is T
-                   select new KeyValuePair<string, T>(param.Key, (T)param.Value);
+            return (from param in _parameters
+                    where param.Value is T
+                    select new KeyValuePair<string, T>(param.Key, (T)param.Value))
+                   .ToDictionary();
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Fields
+        public IDictionary<string, string> Fields
         {
             get { return OfType<string>(); }
         }
 
-        public IEnumerable<KeyValuePair<string, StorageFile>> Files
+        public IDictionary<string, StorageFile> Files
         {
             get { return OfType<StorageFile>(); }
         }
@@ -102,6 +103,40 @@ namespace Jv.Web.OAuth
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public string GetField(string name)
+        {
+            return (string)_parameters.Single(p => p.Key == name).Value;
+        }
+
+        public StorageFile GetFile(string name)
+        {
+            return (StorageFile)_parameters.Single(p => p.Key == name).Value;
+        }
+
+        public void Set(string name, string value)
+        {
+            Set(name, (object)value);
+        }
+
+        public void Set(string name, StorageFile value)
+        {
+            Set(name, (object)value);
+        }
+
+        void Set(string name, object value)
+        {
+            var ind = _parameters.FindIndex(p => p.Key == name);
+            if (ind >= 0)
+                _parameters[ind] = new KeyValuePair<string, object>(name, value);
+            else
+                _parameters.Add(name, value);
+        }
+
+        public void Sort()
+        {
+            _parameters.Sort((a, b) => a.Key.CompareTo(b.Key));
         }
     }
 }

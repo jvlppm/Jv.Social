@@ -54,6 +54,9 @@ namespace Jv.Web.OAuth
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
 
+            if (_built)
+                throw new InvalidOperationException("The multipart content can't be changed after build.");
+
             byte[] nameBytes = Encoding.UTF8.GetBytes(name);
             byte[] valueBytes = Encoding.UTF8.GetBytes(value);
 
@@ -84,6 +87,9 @@ namespace Jv.Web.OAuth
         {
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
+
+            if (_built)
+                throw new InvalidOperationException("The multipart content can't be changed after build.");
 
             byte[] nameBytes = Encoding.UTF8.GetBytes(name);
             byte[] filenameBytes = Encoding.UTF8.GetBytes(file.Name);
@@ -140,6 +146,7 @@ namespace Jv.Web.OAuth
         public async Task CopyToAsync(Stream destination)
         {
             Build();
+            _buffer.Position = 0;
             await _buffer.CopyToAsync(destination);
         }
 

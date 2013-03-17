@@ -109,7 +109,7 @@
     <Compile Include="MultipartBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataType.cs" />
-    <Compile Include="SafeResponse.cs" />
+    <Compile Include="SafeObject.cs" />
     <Compile Include="v1\OAuthClient.cs" />
     <Compile Include="v1\OAuthLogin.cs" />
     <Compile Include="WebRequestFormat.cs" />

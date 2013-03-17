@@ -52,12 +52,12 @@ namespace Jv.Social.Twitter
         #endregion
 
         #region Core
-        public async Task<T> Get<T>(string resource, HttpParameters data = null) where T : class
+        public async Task<T> Get<T>(string resource, HttpParameters data = null) where T : Object
         {
             return Object.Create<T>(await Ajax(resource, "GET", data));
         }
 
-        public async Task<T> Post<T>(string resource, HttpParameters data = null) where T : class
+        public async Task<T> Post<T>(string resource, HttpParameters data = null) where T : Object
         {
             return Object.Create<T>(await Ajax(resource, "POST", data));
         }

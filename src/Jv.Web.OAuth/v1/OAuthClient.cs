@@ -52,8 +52,8 @@ namespace Jv.Web.OAuth.v1
             {
                 var req = await CreateHttpWebRequest(type, url, data != null && implicitNullValues ? data.NotNullParameters : data, requestFormat);
                 var resp = await req.Request(dataType);
-                if (resp is IDictionary<string, object> && implicitNullValues)
-                    return new SafeResponse(resp);
+                if (implicitNullValues)
+                    return SafeObject.Create(resp);
                 return resp;
             }
             catch (WebException ex)
@@ -69,6 +69,7 @@ namespace Jv.Web.OAuth.v1
             var signed = new HttpParameters(parameters);
             var oAuthParams = GetOauthParameters(requestType, url, signed.Fields);
             signed.AddRange(oAuthParams);
+            signed.Sort();
             return signed;
         }
 
