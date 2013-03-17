@@ -103,5 +103,12 @@ namespace Jv.Social.Google.Orkut
             return await rpc.Task;
         }
         #endregion
+
+        #region Public API
+        public Task<Person> CurrentUser()
+        {
+            return Ajax(new PersonGet(UserIds.Me));
+        }
+        #endregion
     }
 }
