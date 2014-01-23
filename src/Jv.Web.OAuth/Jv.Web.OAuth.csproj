@@ -36,7 +36,7 @@
   <ItemGroup>
     <Compile Include="DataType.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
-    <Compile Include="File.cs" />
+    <Compile Include="Platform\IFile.cs" />
     <Compile Include="HttpParameters.cs" />
     <Compile Include="Json\Extensions.cs" />
     <Compile Include="Json\JsonBuilder.cs" />
@@ -46,6 +46,7 @@
     <Compile Include="KeyPair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,4 +1,5 @@
 ﻿using Jv.Web.OAuth.Extensions;
+using Jv.Web.OAuth.Platform;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +35,9 @@ namespace Jv.Web.OAuth
             get { return OfType<string>(); }
         }
 
-        public IDictionary<string, File> Files
+        public IDictionary<string, IFile> Files
         {
-            get { return OfType<File>(); }
+            get { return OfType<IFile>(); }
         }
 
         public HttpParameters FieldParameters
@@ -74,7 +75,7 @@ namespace Jv.Web.OAuth
             _parameters.Add(name, value);
         }
 
-        public void Add(string name, File value)
+        public void Add(string name, IFile value)
         {
             _parameters.Add(name, value);
         }
@@ -89,7 +90,7 @@ namespace Jv.Web.OAuth
             _parameters.AddRange(keyValues.Select(kv => new KeyValuePair<string, object>(kv.Key, kv.Value)));
         }
 
-        public void AddRange(IEnumerable<KeyValuePair<string, File>> keyValues)
+        public void AddRange(IEnumerable<KeyValuePair<string, IFile>> keyValues)
         {
             _parameters.AddRange(keyValues.Select(kv => new KeyValuePair<string, object>(kv.Key, kv.Value)));
         }
@@ -109,9 +110,9 @@ namespace Jv.Web.OAuth
             return (string)_parameters.Single(p => p.Key == name).Value;
         }
 
-        public File GetFile(string name)
+        public IFile GetFile(string name)
         {
-            return (File)_parameters.Single(p => p.Key == name).Value;
+            return (IFile)_parameters.Single(p => p.Key == name).Value;
         }
 
         public void Set(string name, string value)
@@ -119,7 +120,7 @@ namespace Jv.Web.OAuth
             Set(name, (object)value);
         }
 
-        public void Set(string name, File value)
+        public void Set(string name, IFile value)
         {
             Set(name, (object)value);
         }
