@@ -33,11 +33,8 @@ namespace Jv.Web.OAuth
 
         public static KeyPair Parse(string keyPair)
         {
-            var pair = keyPair.AsJson() as IDictionary<string, object>;
-            return new KeyPair(
-                pair["key"] as string,
-                pair["secret"] as string
-            );
+            var pair = keyPair.AsJson();
+            return new KeyPair(pair.key, pair.secret);
         }
         #endregion
 
