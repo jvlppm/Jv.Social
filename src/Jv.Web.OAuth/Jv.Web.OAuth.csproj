@@ -39,6 +39,7 @@
     <Compile Include="Json\JsonReader.cs" />
     <Compile Include="Json\ParseException.cs" />
     <Compile Include="Json\TokenType.cs" />
+    <Compile Include="KeyPair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
