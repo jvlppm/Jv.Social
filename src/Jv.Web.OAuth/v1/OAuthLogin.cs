@@ -5,6 +5,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using Jv.Web.OAuth.Extensions;
 
 namespace Jv.Web.OAuth.v1
 {
@@ -64,6 +65,9 @@ namespace Jv.Web.OAuth.v1
 
         protected virtual Task<UserAuthorizationResult> GetUserAuthorization(KeyPair requestToken)
         {
+            var authorizationUrlBuilder = new UriBuilder(UrlAuthorizeToken);
+            authorizationUrlBuilder.AddToQuery("oauth_token", requestToken.Key);
+            var uri = authorizationUrlBuilder.Uri;
             throw new NotImplementedException();
         }
 

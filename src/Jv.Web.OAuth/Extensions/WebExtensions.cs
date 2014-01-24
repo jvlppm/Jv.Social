@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Jv.Web.OAuth.Json;
+using Jv.Web.OAuth.Extensions;
 
 namespace Jv.Web.OAuth.Extensions
 {
@@ -84,6 +85,21 @@ namespace Jv.Web.OAuth.Extensions
                 default:
                     throw new NotImplementedException("Reading data as " + dataType + " is not supported.");
             }
+        }
+
+        public static void AddToQuery(this UriBuilder baseUri, string key, string value = null)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException("key");
+
+            var queryToAppend = key.UriDataEscape();
+            if (value != null)
+                queryToAppend += "=" + value.UriDataEscape();
+
+            if (baseUri.Query != null && baseUri.Query.Length > 1)
+                baseUri.Query = baseUri.Query.Substring(1) + "&" + queryToAppend;
+            else
+                baseUri.Query = queryToAppend; 
         }
     }
 }

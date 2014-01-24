@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jv.Web.OAuth", "Jv.Web.OAut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jv.Social", "Jv.Social\Jv.Social.csproj", "{D9C2EB12-2F74-43FE-B27E-7B398FD61F08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{453B7797-6220-44D9-820C-35CFCE4B1F34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole.Desktop", "TestConsole\TestConsole.Desktop.csproj", "{453B7797-6220-44D9-820C-35CFCE4B1F34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
