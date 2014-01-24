@@ -14,11 +14,16 @@ namespace Jv.Web.OAuth
 
             public static void Register(Func<T> creator)
             {
+                if (creator == null)
+                    throw new ArgumentNullException("creator");
                 _func = creator;
             }
 
             public static T Create()
             {
+                if (_func == null)
+                    throw new InvalidOperationException("The requested service '" + (typeof(T).FullName) + "' has not been registered.");
+
                 return _func();
             }
         }

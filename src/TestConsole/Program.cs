@@ -29,6 +29,14 @@ namespace TestConsole
             {
                 Console.WriteLine(((object)ex.ResponseData).ToJson());
             }
+            catch(AggregateException ex)
+            {
+                Console.WriteLine(ex.InnerException.Message);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

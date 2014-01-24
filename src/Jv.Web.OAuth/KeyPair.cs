@@ -14,11 +14,11 @@ namespace Jv.Web.OAuth
         #region Constructors
         public KeyPair(string key, string secret)
         {
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Key cannot be empty", "key");
 
             if (string.IsNullOrEmpty(secret))
-                throw new ArgumentNullException("secret");
+                throw new ArgumentException("Secret code cannot be empty", "secret");
 
             Key = key;
             Secret = secret;

@@ -89,8 +89,8 @@ namespace Jv.Web.OAuth.Extensions
 
         public static void AddToQuery(this UriBuilder baseUri, string key, string value = null)
         {
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Key cannot be empty", "key");
 
             var queryToAppend = key.UriDataEscape();
             if (value != null)

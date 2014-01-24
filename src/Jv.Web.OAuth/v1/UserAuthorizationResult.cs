@@ -15,6 +15,11 @@ namespace Jv.Web.OAuth.v1
         #region Constructors
         public UserAuthorizationResult(string token, string verifier)
         {
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentException("Token cannot be empty", "token");
+            if (string.IsNullOrWhiteSpace(verifier))
+                throw new ArgumentException("Verifier cannot be empty", "verifier");
+
             OAuthToken = token;
             OAuthVerifier = verifier;
         }
