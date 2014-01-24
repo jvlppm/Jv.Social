@@ -1,9 +1,12 @@
 ﻿using Jv.Web.OAuth.v1;
+using Jv.Web.OAuth.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TestConsole
 {
@@ -20,39 +23,117 @@ namespace TestConsole
 
         public System.Threading.Tasks.Task<UserAuthorizationResult> AuthorizeUser(Uri requestUri)
         {
-            throw new TaskCanceledException();
-            /*WebBrowser loginBrowser = new WebBrowser { Dock = DockStyle.Fill };
-            loginBrowser.Navigate(buildAuthenticationUrl());
-            Form window = new Form { Width = 640, Height = 480, Text = "Positivo - Login Orkut", Icon = new System.Drawing.Icon(typeof(Orkut), "orkut_icon.ico") };
-            window.Controls.Add(loginBrowser);
+            var tcs = new TaskCompletionSource<UserAuthorizationResult>();
 
-            loginBrowser.Navigated += (s, e) =>
-            {
-                try
-                {
-                    var result = OrkutRequest.ParseParameters(e.Url.Query);
+			var t = new Thread((ThreadStart)delegate
+			{
+				// TODO: Create a Dialog/Window class.
+				var backWin = new Form
+				{
+					BackColor = global::System.Drawing.Color.Black,
+					Opacity = 0.55,
+					WindowState = FormWindowState.Maximized,
+					FormBorderStyle = FormBorderStyle.None,
+					TopMost = true
+				};
 
-                    if (result.ContainsKey("oauth_verifier"))
-                    {
-                        using (var Registry = Orkut.getRegistry())
-                        {
-                            if ((string)Registry.ReadValue("Token") != (string)result["oauth_token"])
-                                throw new Exception(string.Format("Invalid authentication token.\r\nExpected: {0}.\r\nReceived: {1}.", Registry.ReadValue("Token"), result["oauth_token"]));
+				var win = new Form
+				{
+					FormBorderStyle = FormBorderStyle.None,
+					TopMost = true
+				};
 
-                            Registry.WriteValue("Verifier", result["oauth_verifier"] as string);
-                        }
-                        window.DialogResult = DialogResult.OK;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    loginError = ex;
-                    window.DialogResult = DialogResult.Abort;
-                }
-            };
+				bool ignoreWindowSizeChange = false;
+				EventHandler winSizeChanged = delegate
+				{
+					if (ignoreWindowSizeChange)
+						return;
+					win.Top = (backWin.Height - win.Height) / 2;
+					win.Left = backWin.Left;
+				};
 
-            if (window.ShowDialog() == DialogResult.Abort && loginError != null)
-                throw loginError;*/
+				win.SizeChanged += winSizeChanged;
+				backWin.SizeChanged += delegate
+				{
+					ignoreWindowSizeChange = true;
+					win.Width = backWin.Width;
+					win.Height = backWin.Height - 230;
+					ignoreWindowSizeChange = false;
+					winSizeChanged(backWin, EventArgs.Empty);
+				};
+
+				var headerPanel = new Panel { Width = 566, Height = 80 };
+				var bodyPanel = new Panel
+				{
+					Top = 80,
+					BackColor = global::System.Drawing.Color.White,
+				};
+
+				/*var backButton = new BackButton
+				{
+					Location = new global::System.Drawing.Point(0, 35),
+					TabStop = false
+				};
+				headerPanel.Controls.Add(backButton);
+				backButton.Click += (s, e) => win.Close();*/
+
+				var lbl = new Label
+				{
+					Location = new global::System.Drawing.Point(35, 30),
+					Font = new global::System.Drawing.Font("Segoe UI", 19.5f),
+					Text = "Connecting to a service",//WinRT.NET.Forms.Properties.Resources.AuthenticationBrokerTitle,
+					AutoSize = true
+				};
+				headerPanel.Controls.Add(lbl);
+				win.Controls.Add(headerPanel);
+				win.Controls.Add(bodyPanel);
+
+				var browser = new WebBrowser { Width = 566 };
+				win.SizeChanged += delegate
+				{
+					bodyPanel.Width = win.Width;
+					bodyPanel.Height = win.Height - bodyPanel.Top;
+					browser.Height = win.Height - 80;
+					browser.Left = (win.Width - browser.Width) / 2;
+					headerPanel.Left = browser.Left;
+				};
+
+				browser.PreviewKeyDown += (sender, e) =>
+				{
+					if (e.KeyCode == Keys.Escape)
+						win.DialogResult = DialogResult.Abort;
+				};
+				bodyPanel.Controls.Add(browser);
+				win.Deactivate += (sender, e) =>
+				{
+					if (win.CanFocus)
+						win.DialogResult = DialogResult.Abort;
+				};
+
+				browser.Navigated += (sender, e) =>
+				{
+					if (e.Url.GetLeftPart(UriPartial.Path).EndsWith(_callback.ToString()))
+					{
+                        dynamic authData = e.Url.ToString().ParseUrlParameters().ToExpandoObject();
+
+						tcs.TrySetResult(new UserAuthorizationResult(authData.oauth_token, authData.oauth_verifier));
+						win.DialogResult = DialogResult.OK;
+					}
+				};
+
+				browser.Navigate(requestUri);
+
+				backWin.Show();
+				win.ShowDialog();
+				backWin.Close();
+
+                tcs.TrySetCanceled();
+			});
+
+			t.SetApartmentState(ApartmentState.STA);
+			t.Start();
+
+			return tcs.Task;
         }
 
         public void Dispose()

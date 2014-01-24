@@ -33,15 +33,18 @@ namespace Jv.Web.OAuth.v1
 
         public virtual async Task<OAuthClient> Login()
         {
-            var authorizer = IoC.Create<IUserAuthorizer>();
+            UserAuthorizationResult userAuthResult;
+            using (var authorizer = IoC.Create<IUserAuthorizer>())
+            {
+                var requestToken = await GetRequestToken(authorizer);
+                userAuthResult = await GetUserAuthorization(requestToken, authorizer);
 
-            var requestToken = await GetRequestToken(authorizer);
-            var authResult = await GetUserAuthorization(requestToken, authorizer);
-            if (requestToken.Key != authResult.OAuthToken)
-                throw new Exception("Invalid token authorized by server");
+                if (requestToken.Key != userAuthResult.OAuthToken)
+                    throw new ProtocolException("Invalid token authorized by server");
 
-            var accessToken = await GetAccessToken(authResult);
-            return new OAuthClient(ApplicationInfo, accessToken);
+                var accessToken = await GetAccessToken(requestToken, userAuthResult);
+                return new OAuthClient(ApplicationInfo, accessToken);
+            }
         }
 
         protected virtual async Task<KeyPair> GetRequestToken(IUserAuthorizer authorizer)
@@ -66,16 +69,22 @@ namespace Jv.Web.OAuth.v1
         {
             var authorizationUrlBuilder = new UriBuilder(UrlAuthorizeToken);
             authorizationUrlBuilder.AddToQuery("oauth_token", requestToken.Key);
-            var uri = authorizationUrlBuilder.Uri;
 
-            authorizer.AuthorizeUser(uri);
-
-            throw new NotImplementedException();
+            return authorizer.AuthorizeUser(authorizationUrlBuilder.Uri);
         }
 
-        protected virtual Task<KeyPair> GetAccessToken(UserAuthorizationResult authResult)
+        protected virtual async Task<KeyPair> GetAccessToken(KeyPair requestToken, UserAuthorizationResult authResult)
         {
-            throw new NotImplementedException();
+            var oauthClient = new OAuthClient(ApplicationInfo, requestToken);
+
+            var resp = await oauthClient.Ajax(UrlGetAccessToken,
+                parameters: new HttpParameters { { "oauth_verifier", authResult.OAuthVerifier } },
+                dataType: DataType.UrlEncoded);
+
+            return new KeyPair(
+                key: resp.oauth_token,
+                secret: resp.oauth_token_secret
+            );
         }
     }
 }
