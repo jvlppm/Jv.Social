@@ -1,6 +1,8 @@
 ﻿using Jv.Web.OAuth;
 using Jv.Web.OAuth.v1;
 using System;
+using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace Jv.Social.Google
 {
@@ -18,7 +20,7 @@ namespace Jv.Social.Google
             UrlScope = urlScope;
         }
 
-        protected override async System.Threading.Tasks.Task<KeyPair> GetRequestToken()
+        protected override async Task<KeyPair> GetRequestToken()
         {
             var oauthClient = new OAuthClient(ApplicationInfo);
 
@@ -26,9 +28,12 @@ namespace Jv.Social.Google
                 parameters: new HttpParameters {
                     {"oauth_callback", UrlCallback.ToString()},
                     {"scope", UrlScope.ToString()}
-                }//,
-                //dataType: DataType.UrlEncoded
+                },
+                dataType: DataType.UrlEncoded
             );
+
+            if (resp.oauth_callback_confirmed != "true")
+                throw new ProtocolException("Expected oauth_callback_confirmed to be true");
 
             return new KeyPair(
                 key: resp.oauth_token,

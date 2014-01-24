@@ -1,4 +1,5 @@
-﻿using System;
+﻿// http://oauth.net/core/1.0a/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -34,32 +35,30 @@ namespace Jv.Web.OAuth.v1
         }
         #endregion
 
-        public Task<dynamic> Ajax(Uri url,
+        public Task<dynamic> Ajax(string url,
             string method = "GET",
-            HttpParameters parameters = null)
+            HttpParameters parameters = null,
+            DataType dataType = DataType.Automatic)
         {
-            return Ajax(url.ToString(), method, parameters);
+            return Ajax(new Uri(url), method, parameters, dataType);
         }
 
-        public async Task<dynamic> Ajax(string url,
+        public async Task<dynamic> Ajax(Uri url,
             string method = "GET",
-            HttpParameters parameters = null)
+            HttpParameters parameters = null,
+            DataType dataType = DataType.Automatic)
         {
-            //try
-            //{
-                var req = CreateRequest(url, method, parameters);
-                var resp = await HttpClient.SendAsync(req);
-            //200, OK!
-                return SafeObject.Create(resp);
-            //}
-            //catch (System.Net.Http.HttpRequestException ex)
-            //{
-            //    ex.
-            //    throw new WebException(ex.Response.GetResponseString(), ex, ex.Status, ex.Response);
-            //}
+            var req = CreateRequest(url, method, parameters);
+            var resp = await HttpClient.SendAsync(req);
+            var respData = await resp.Content.ReadAsDynamicAsync(dataType);
+
+            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+                throw new WebException(resp.StatusCode, respData);
+
+            return SafeObject.Create(respData);
         }
 
-        protected virtual HttpRequestMessage CreateRequest(string url, string method, HttpParameters parameters)
+        protected virtual HttpRequestMessage CreateRequest(Uri url, string method, HttpParameters parameters)
         {
             IList<Tuple<string, HttpContent, string>> requestContent = new List<Tuple<string, HttpContent, string>>();
 
@@ -89,16 +88,16 @@ namespace Jv.Web.OAuth.v1
         }
 
         #region Protected Methods
-        protected static string BuildUrl(string url, IEnumerable<KeyValuePair<string, string>> parameters)
+        protected static Uri BuildUrl(Uri url, IEnumerable<KeyValuePair<string, string>> parameters)
         {
             if (!parameters.Any())
                 return url;
 
             var orderedParams = parameters.OrderBy(p => p.Key);
-            return url + "?" + orderedParams.AsUrlParameters();
+            return new Uri(url + "?" + orderedParams.AsUrlParameters());
         }
 
-        protected HttpParameters Sign(string url, string method, HttpParameters parameters)
+        protected HttpParameters Sign(Uri url, string method, HttpParameters parameters)
         {
             var signed = new HttpParameters(parameters);
             var oAuthParams = GetOauthParameters(url, method, signed.Fields);
@@ -107,7 +106,7 @@ namespace Jv.Web.OAuth.v1
             return signed;
         }
 
-        protected IDictionary<string, string> GetOauthParameters(string url, string method, IEnumerable<KeyValuePair<string, string>> parameters = null)
+        protected IDictionary<string, string> GetOauthParameters(Uri url, string method, IEnumerable<KeyValuePair<string, string>> parameters = null)
         {
             parameters = parameters ?? Enumerable.Empty<KeyValuePair<string, string>>();
 
@@ -140,10 +139,10 @@ namespace Jv.Web.OAuth.v1
             return Random.Next(123400, 9999999).ToString();
         }
 
-        protected string BuildSignature(string url, string type, IEnumerable<KeyValuePair<string, string>> parameters)
+        protected string BuildSignature(Uri url, string type, IEnumerable<KeyValuePair<string, string>> parameters)
         {
             parameters = parameters.OrderBy(p => p.Key);
-            return GetSignature(string.Format("{0}&{1}&{2}", type, Uri.EscapeDataString(url), parameters.AsUrlParameters().UriDataEscape()));
+            return GetSignature(string.Format("{0}&{1}&{2}", type, Uri.EscapeDataString(url.ToString()), parameters.AsUrlParameters().UriDataEscape()));
         }
 
         protected string GetSignature(string signatureBase)

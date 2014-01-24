@@ -1,6 +1,8 @@
-﻿using System;
+﻿// http://oauth.net/core/1.0a/
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,9 +49,12 @@ namespace Jv.Web.OAuth.v1
             var oauthClient = new OAuthClient(ApplicationInfo);
 
             var resp = await oauthClient.Ajax(UrlGetRequestToken,
-                parameters: new HttpParameters { { "oauth_callback", UrlCallback.ToString() } }//,
-                //dataType: DataType.UrlEncoded
+                parameters: new HttpParameters { { "oauth_callback", UrlCallback.ToString() } },
+                dataType: DataType.UrlEncoded
             );
+
+            if (resp.oauth_callback_confirmed != "true")
+                throw new ProtocolException("Expected oauth_callback_confirmed to be true");
 
             return new KeyPair(
                 key: resp.oauth_token,
