@@ -16,6 +16,12 @@ namespace Jv.Web.OAuth.Extensions
             return result.ToString();
         }
 
+        //TODO: Validar acesso com UTF8.
+        public static byte[] GetAsciiBytes(this string str)
+        {
+            return str.ToCharArray().Select(c => (byte)c).ToArray();
+        }
+
         public static string AsUrlParameters(this IEnumerable<KeyValuePair<string, string>> parameters)
         {
             StringBuilder queryString = new StringBuilder();
