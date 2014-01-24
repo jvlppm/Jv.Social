@@ -12,7 +12,6 @@ namespace Jv.Social.Google
 
         public GoogleLogin(KeyPair applicationInfo, Uri urlScope)
             : base(applicationInfo,
-                urlCallback: new Uri("http://localhost"),
                 urlGetRequestToken: new Uri("https://www.google.com/accounts/OAuthGetRequestToken"),
                 urlAuthorizeToken: new Uri("https://www.google.com/accounts/OAuthAuthorizeToken"),
                 urlGetAccessToken: new Uri("https://www.google.com/accounts/OAuthGetAccessToken"))
@@ -20,13 +19,13 @@ namespace Jv.Social.Google
             UrlScope = urlScope;
         }
 
-        protected override async Task<KeyPair> GetRequestToken()
+        protected override async Task<KeyPair> GetRequestToken(IUserAuthorizer authorizer)
         {
             var oauthClient = new OAuthClient(ApplicationInfo);
 
             var resp = await oauthClient.Ajax(UrlGetRequestToken,
                 parameters: new HttpParameters {
-                    {"oauth_callback", UrlCallback.ToString()},
+                    {"oauth_callback", (await authorizer.GetCallback()).ToString() },
                     {"scope", UrlScope.ToString()}
                 },
                 dataType: DataType.UrlEncoded

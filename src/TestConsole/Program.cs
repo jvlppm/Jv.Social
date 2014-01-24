@@ -2,6 +2,7 @@
 using Jv.Social.Google.Orkut;
 using Jv.Web.OAuth;
 using Jv.Web.OAuth.Json;
+using Jv.Web.OAuth.v1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
+            IoC.Register<IUserAuthorizer>(() => new WinFormsAuthorizer());
+
             KeyPair appInfo = new KeyPair(
                 key: "176102147108.apps.googleusercontent.com",
                 secret: "glE2FgAVRf_VEl9etaOCfuDK");

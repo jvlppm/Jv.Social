@@ -13,7 +13,6 @@ namespace Jv.Web.OAuth.v1
     {
         #region Attributes
         public KeyPair ApplicationInfo { get; private set; }
-        public Uri UrlCallback { get; private set; }
         public Uri UrlGetRequestToken { get; private set; }
         public Uri UrlAuthorizeToken { get; private set; }
         public Uri UrlGetAccessToken { get; private set; }
@@ -21,13 +20,11 @@ namespace Jv.Web.OAuth.v1
 
         #region Constructors
         public OAuthLogin(KeyPair applicationInfo,
-            Uri urlCallback,
             Uri urlGetRequestToken,
             Uri urlAuthorizeToken,
             Uri urlGetAccessToken)
         {
             ApplicationInfo = applicationInfo;
-            UrlCallback = urlCallback;
             UrlGetRequestToken = urlGetRequestToken;
             UrlAuthorizeToken = urlAuthorizeToken;
             UrlGetAccessToken = urlGetAccessToken;
@@ -36,8 +33,10 @@ namespace Jv.Web.OAuth.v1
 
         public virtual async Task<OAuthClient> Login()
         {
-            var requestToken = await GetRequestToken();
-            var authResult = await GetUserAuthorization(requestToken);
+            var authorizer = IoC.Create<IUserAuthorizer>();
+
+            var requestToken = await GetRequestToken(authorizer);
+            var authResult = await GetUserAuthorization(requestToken, authorizer);
             if (requestToken.Key != authResult.OAuthToken)
                 throw new Exception("Invalid token authorized by server");
 
@@ -45,12 +44,12 @@ namespace Jv.Web.OAuth.v1
             return new OAuthClient(ApplicationInfo, accessToken);
         }
 
-        protected virtual async Task<KeyPair> GetRequestToken()
+        protected virtual async Task<KeyPair> GetRequestToken(IUserAuthorizer authorizer)
         {
             var oauthClient = new OAuthClient(ApplicationInfo);
 
             var resp = await oauthClient.Ajax(UrlGetRequestToken,
-                parameters: new HttpParameters { { "oauth_callback", UrlCallback.ToString() } },
+                parameters: new HttpParameters { { "oauth_callback", (await authorizer.GetCallback()).ToString() } },
                 dataType: DataType.UrlEncoded
             );
 
@@ -63,11 +62,14 @@ namespace Jv.Web.OAuth.v1
             );
         }
 
-        protected virtual Task<UserAuthorizationResult> GetUserAuthorization(KeyPair requestToken)
+        protected virtual Task<UserAuthorizationResult> GetUserAuthorization(KeyPair requestToken, IUserAuthorizer authorizer)
         {
             var authorizationUrlBuilder = new UriBuilder(UrlAuthorizeToken);
             authorizationUrlBuilder.AddToQuery("oauth_token", requestToken.Key);
             var uri = authorizationUrlBuilder.Uri;
+
+            authorizer.AuthorizeUser(uri);
+
             throw new NotImplementedException();
         }
 

@@ -47,6 +47,8 @@
     <Compile Include="Extensions\DynamicExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\WebExtensions.cs" />
+    <Compile Include="IoC.cs" />
+    <Compile Include="v1\IUserAuthorizer.cs" />
     <Compile Include="Platform\IFile.cs" />
     <Compile Include="HttpParameters.cs" />
     <Compile Include="Json\Extensions.cs" />
