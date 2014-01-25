@@ -36,6 +36,8 @@
     <Compile Include="Google\GoogleLogin.cs" />
     <Compile Include="Google\Orkut\OrkutClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Twitter\TwitterClient.cs" />
+    <Compile Include="Twitter\TwitterLogin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jv.Web.OAuth\Jv.Web.OAuth.csproj">
