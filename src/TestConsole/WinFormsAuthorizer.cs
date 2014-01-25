@@ -7,22 +7,40 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.Sockets;
+using System.Net;
 
 namespace TestConsole
 {
     class WinFormsAuthorizer : IUserAuthorizer
     {
-        Uri _callback;
+        #region Attributes
+        bool _disposed;
+        Task<Uri> _getCallbackTask;
+        HttpListener _httpListener;
+        #endregion
 
-        public async System.Threading.Tasks.Task<Uri> GetCallback()
+        #region IUserAuthorizer implementation
+        public Task<Uri> GetCallback()
         {
-            if (_callback == null)
-                _callback = new Uri("http://localhost/");
-            return _callback;
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if (_getCallbackTask == null)
+            {
+                var callback = new Uri("http://localhost:" + GetRandomUnusedPort() + "/");
+                AcceptHttpRequests(callback);
+                _getCallbackTask = Task.FromResult(callback);
+            }
+
+            return _getCallbackTask;
         }
 
-        public System.Threading.Tasks.Task<UserAuthorizationResult> AuthorizeUser(Uri requestUri)
+        public Task<UserAuthorizationResult> AuthorizeUser(Uri requestUri)
         {
+            if (_getCallbackTask == null)
+                throw new InvalidOperationException("A callback must be generated in order to authorize an User.");
+
             var tcs = new TaskCompletionSource<UserAuthorizationResult>();
 
 			var t = new Thread((ThreadStart)delegate
@@ -112,7 +130,7 @@ namespace TestConsole
 
 				browser.Navigated += (sender, e) =>
 				{
-					if (e.Url.GetLeftPart(UriPartial.Path).EndsWith(_callback.ToString()))
+					if (e.Url.GetLeftPart(UriPartial.Path).EndsWith(_getCallbackTask.Result.ToString()))
 					{
                         dynamic authData = e.Url.ToString().ParseUrlParameters().ToExpandoObject();
 
@@ -138,6 +156,42 @@ namespace TestConsole
 
         public void Dispose()
         {
+            if (_disposed)
+                return;
+
+            if (_httpListener != null)
+                ((IDisposable)_httpListener).Dispose();
+
+            _disposed = true;
         }
+        #endregion
+
+        #region Private Methods
+        static int GetRandomUnusedPort()
+        {
+            var listener = new TcpListener(IPAddress.Any, 0);
+            listener.Start();
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            listener.Stop();
+            return port;
+        }
+
+        async void AcceptHttpRequests(Uri prefix)
+        {
+            try
+            {
+                _httpListener = new HttpListener();
+                _httpListener.Prefixes.Add(prefix.ToString());
+                _httpListener.Start();
+
+                while (true)
+                {
+                    var client = await _httpListener.GetContextAsync();
+                    client.Response.Close();
+                }
+            }
+            catch { }
+        }
+        #endregion
     }
 }

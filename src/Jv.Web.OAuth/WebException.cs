@@ -14,6 +14,7 @@ namespace Jv.Web.OAuth
         public dynamic ResponseData { get; private set; }
 
         public WebException(HttpStatusCode statusCode, dynamic responseData)
+            : base(responseData is string? (string)responseData : null)
         {
             StatusCode = statusCode;
             ResponseData = responseData;

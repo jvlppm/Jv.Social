@@ -50,11 +50,14 @@ namespace Jv.Web.OAuth.v1
         {
             var req = CreateRequest(url, method, parameters);
             var resp = await HttpClient.SendAsync(req);
-            var respData = await resp.Content.ReadAsDynamicAsync(dataType);
 
             if (resp.StatusCode != System.Net.HttpStatusCode.OK)
-                throw new WebException(resp.StatusCode, respData);
+            {
+                var errorData = await resp.Content.ReadAsDynamicAsync();
+                throw new WebException(resp.StatusCode, errorData);
+            }
 
+            var respData = await resp.Content.ReadAsDynamicAsync(dataType);
             return SafeObject.Create(respData);
         }
 
