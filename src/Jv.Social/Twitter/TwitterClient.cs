@@ -1,4 +1,5 @@
 ﻿using Jv.Web.OAuth;
+using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.v1;
 using System;
 using System.Collections.Generic;
@@ -27,10 +28,10 @@ namespace Jv.Social.Twitter
         {
         }
 
-        public static async Task<TwitterClient> Login(KeyPair applicationInfo)
+        public static async Task<TwitterClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator)
         {
             var login = new TwitterLogin(applicationInfo);
-            var oAuthClient = await login.Login();
+            var oAuthClient = await login.Login(authenticator);
 
             return new TwitterClient(oAuthClient);
         }

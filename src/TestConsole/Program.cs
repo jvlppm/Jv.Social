@@ -9,6 +9,7 @@ using Jv.Web.OAuth.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
-            IoC.Register<IWebAuthenticator>(() => new WinFormsAuthenticator());
+            //IoC.Register<IWebAuthenticator>(() => new WinFormsAuthenticator());
             //IoC.Register<WinFormsAuthenticator>().As<IWebAuthenticator>();
 
             Test().Wait();
@@ -36,13 +37,16 @@ namespace TestConsole
 
             try
             {
-                var orkutClient = await OrkutClient.Login(orkutAppInfo);
-                Console.WriteLine("Orkut: " + orkutClient.OAuthClient.AccessToken);
+                using (var authenticator = new WinFormsAuthenticator())
+                {
+                    var orkutClient = await OrkutClient.Login(orkutAppInfo, authenticator);
+                    Console.WriteLine("Orkut: " + orkutClient.OAuthClient.AccessToken);
 
-                //var twitterClient = await TwitterClient.Login(twitterAppInfo);
-                //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);
+                    //var twitterClient = await TwitterClient.Login(twitterAppInfo, authenticator);
+                    //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);
+                }
             }
-            catch (WebException ex)
+            catch (Jv.Web.OAuth.WebException ex)
             {
                 Console.WriteLine(((object)ex.ResponseData).ToJson());
             }

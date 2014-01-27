@@ -32,22 +32,22 @@ namespace Jv.Web.OAuth.v1
         }
         #endregion
 
-        public virtual async Task<OAuthClient> Login()
+        public virtual async Task<OAuthClient> Login(IWebAuthenticator authenticator)
         {
-            using (var authorizer = IoC.Create<IWebAuthenticator>())
-            {
-                var requestToken = await GetRequestToken(authorizer);
-                var userAuthResult = await GetUserAuthorization(requestToken, authorizer);
+            if (authenticator == null)
+                throw new ArgumentNullException("authenticator");
 
-                string oAuthToken, oAuthVerifier;
-                ReadUserAuthorizationResult(userAuthResult, out oAuthToken, out oAuthVerifier);
+            var requestToken = await GetRequestToken(authenticator);
+            var userAuthResult = await GetUserAuthorization(requestToken, authenticator);
 
-                if (requestToken.Key != oAuthToken)
-                    throw new ProtocolException("Invalid token authorized by server");
+            string oAuthToken, oAuthVerifier;
+            ReadUserAuthorizationResult(userAuthResult, out oAuthToken, out oAuthVerifier);
 
-                var accessToken = await GetAccessToken(requestToken, oAuthVerifier);
-                return new OAuthClient(ApplicationInfo, accessToken);
-            }
+            if (requestToken.Key != oAuthToken)
+                throw new ProtocolException("Invalid token authorized by server");
+
+            var accessToken = await GetAccessToken(requestToken, oAuthVerifier);
+            return new OAuthClient(ApplicationInfo, accessToken);
         }
 
         protected virtual void ReadUserAuthorizationResult(WebAuthenticationResult userAuthResult, out string oAuthToken, out string oAuthVerifier)
