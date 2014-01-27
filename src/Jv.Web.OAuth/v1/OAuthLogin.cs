@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using Jv.Web.OAuth.Extensions;
+using Jv.Web.OAuth.Authentication;
 
 namespace Jv.Web.OAuth.v1
 {
@@ -33,21 +34,39 @@ namespace Jv.Web.OAuth.v1
 
         public virtual async Task<OAuthClient> Login()
         {
-            UserAuthorizationResult userAuthResult;
-            using (var authorizer = IoC.Create<IUserAuthorizer>())
+            using (var authorizer = IoC.Create<IWebAuthenticator>())
             {
                 var requestToken = await GetRequestToken(authorizer);
-                userAuthResult = await GetUserAuthorization(requestToken, authorizer);
+                var userAuthResult = await GetUserAuthorization(requestToken, authorizer);
 
-                if (requestToken.Key != userAuthResult.OAuthToken)
+                string oAuthToken, oAuthVerifier;
+                ReadUserAuthorizationResult(userAuthResult, out oAuthToken, out oAuthVerifier);
+
+                if (requestToken.Key != oAuthToken)
                     throw new ProtocolException("Invalid token authorized by server");
 
-                var accessToken = await GetAccessToken(requestToken, userAuthResult);
+                var accessToken = await GetAccessToken(requestToken, oAuthVerifier);
                 return new OAuthClient(ApplicationInfo, accessToken);
             }
         }
 
-        protected virtual async Task<KeyPair> GetRequestToken(IUserAuthorizer authorizer)
+        protected virtual void ReadUserAuthorizationResult(WebAuthenticationResult userAuthResult, out string oAuthToken, out string oAuthVerifier)
+        {
+            if (userAuthResult.ResponseStatus == WebAuthenticationStatus.UserCancel)
+                throw new TaskCanceledException();
+            if (userAuthResult.ResponseStatus == WebAuthenticationStatus.ErrorHttp)
+                throw new WebException(userAuthResult.ResponseErrorDetail, userAuthResult.ResponseData);
+
+            var responseData = userAuthResult.ResponseData.ParseUrlParameters();
+
+            if (!responseData.TryGetValue("oauth_token", out oAuthToken))
+                throw new ProtocolException("Server did not return oauth_token");
+
+            if (!responseData.TryGetValue("oauth_verifier", out oAuthVerifier))
+                throw new ProtocolException("Server did not return oauth_verifier");
+        }
+
+        protected virtual async Task<KeyPair> GetRequestToken(IWebAuthenticator authorizer)
         {
             var oauthClient = new OAuthClient(ApplicationInfo);
 
@@ -65,7 +84,7 @@ namespace Jv.Web.OAuth.v1
             );
         }
 
-        protected virtual Task<UserAuthorizationResult> GetUserAuthorization(KeyPair requestToken, IUserAuthorizer authorizer)
+        protected virtual Task<WebAuthenticationResult> GetUserAuthorization(KeyPair requestToken, IWebAuthenticator authorizer)
         {
             var authorizationUrlBuilder = new UriBuilder(UrlAuthorizeToken);
             authorizationUrlBuilder.AddToQuery("oauth_token", requestToken.Key);
@@ -73,12 +92,12 @@ namespace Jv.Web.OAuth.v1
             return authorizer.AuthorizeUser(authorizationUrlBuilder.Uri);
         }
 
-        protected virtual async Task<KeyPair> GetAccessToken(KeyPair requestToken, UserAuthorizationResult authResult)
+        protected virtual async Task<KeyPair> GetAccessToken(KeyPair requestToken, string oAuthVerifier)
         {
             var oauthClient = new OAuthClient(ApplicationInfo, requestToken);
 
             var resp = await oauthClient.Ajax(UrlGetAccessToken,
-                parameters: new HttpParameters { { "oauth_verifier", authResult.OAuthVerifier } },
+                parameters: new HttpParameters { { "oauth_verifier", oAuthVerifier } },
                 dataType: DataType.UrlEncoded);
 
             return new KeyPair(

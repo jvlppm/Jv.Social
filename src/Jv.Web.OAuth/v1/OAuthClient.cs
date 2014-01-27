@@ -18,7 +18,7 @@ namespace Jv.Web.OAuth.v1
 
         #region Properties
         public KeyPair ApplicationInfo { get; private set; }
-        private KeyPair AccessToken { get; set; }
+        public KeyPair AccessToken { get; private set; }
 
         public HttpClient HttpClient { get; private set; }
         #endregion

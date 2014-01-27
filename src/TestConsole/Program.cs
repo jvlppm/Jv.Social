@@ -2,6 +2,7 @@
 using Jv.Social.Google.Orkut;
 using Jv.Social.Twitter;
 using Jv.Web.OAuth;
+using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.Json;
 using Jv.Web.OAuth.v1;
 using System;
@@ -16,45 +17,29 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
-            IoC.Register<IUserAuthorizer>(() => new WinFormsAuthorizer());
+            IoC.Register<IWebAuthenticator>(() => new WinFormsAuthenticator());
+            //IoC.Register<WinFormsAuthenticator>().As<IWebAuthenticator>();
 
-            //OrkutTest();
-            TwitterTest();
+            Test().Wait();
         }
 
-        private static void OrkutTest()
+        private static async Task Test()
         {
-            KeyPair appInfo = new KeyPair(
+            KeyPair orkutAppInfo = new KeyPair(
                 key: "176102147108.apps.googleusercontent.com",
                 secret: "glE2FgAVRf_VEl9etaOCfuDK");
-            try
-            {
-                var orkutClient = OrkutClient.Login(appInfo).Result;
-                Console.WriteLine(orkutClient);
-            }
-            catch (WebException ex)
-            {
-                Console.WriteLine(((object)ex.ResponseData).ToJson());
-            }
-            catch (AggregateException ex)
-            {
-                Console.WriteLine(ex.InnerException.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
 
-        private static void TwitterTest()
-        {
-            KeyPair appInfo = new KeyPair(
+            KeyPair twitterAppInfo = new KeyPair(
                 key: "vS4UjhTai41mgJteeC3eQ",
                 secret: "I2ATAsnTxrFC9UpTlRDuYKareUznje35vnoZXcayq4");
+
             try
             {
-                var twitterClient = TwitterClient.Login(appInfo).Result;
-                Console.WriteLine(twitterClient);
+                var orkutClient = await OrkutClient.Login(orkutAppInfo);
+                Console.WriteLine("Orkut: " + orkutClient.OAuthClient.AccessToken);
+
+                //var twitterClient = await TwitterClient.Login(twitterAppInfo);
+                //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);
             }
             catch (WebException ex)
             {

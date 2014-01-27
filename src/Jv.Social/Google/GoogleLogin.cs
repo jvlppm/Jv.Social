@@ -1,4 +1,5 @@
 ﻿using Jv.Web.OAuth;
+using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.v1;
 using System;
 using System.ServiceModel;
@@ -19,7 +20,7 @@ namespace Jv.Social.Google
             UrlScope = urlScope;
         }
 
-        protected override async Task<KeyPair> GetRequestToken(IUserAuthorizer authorizer)
+        protected override async Task<KeyPair> GetRequestToken(IWebAuthenticator authorizer)
         {
             var oauthClient = new OAuthClient(ApplicationInfo);
 

@@ -9,15 +9,24 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Net;
+using Jv.Web.OAuth.Authentication;
 
 namespace TestConsole
 {
-    class WinFormsAuthorizer : IUserAuthorizer
+    class WinFormsAuthenticator : IWebAuthenticator
     {
         #region Attributes
         bool _disposed;
         Task<Uri> _getCallbackTask;
         HttpListener _httpListener;
+        CancellationTokenSource _listenerCancellation;
+        #endregion
+
+        #region Constructors
+        public WinFormsAuthenticator()
+        {
+            _listenerCancellation = new CancellationTokenSource();
+        }
         #endregion
 
         #region IUserAuthorizer implementation
@@ -36,132 +45,130 @@ namespace TestConsole
             return _getCallbackTask;
         }
 
-        public Task<UserAuthorizationResult> AuthorizeUser(Uri requestUri)
+        public Task<WebAuthenticationResult> AuthorizeUser(Uri requestUri)
         {
             if (_getCallbackTask == null)
                 throw new InvalidOperationException("A callback must be generated in order to authorize an User.");
 
-            var tcs = new TaskCompletionSource<UserAuthorizationResult>();
+            var tcs = new TaskCompletionSource<WebAuthenticationResult>();
 
-			var t = new Thread((ThreadStart)delegate
-			{
-				// TODO: Create a Dialog/Window class.
-				var backWin = new Form
-				{
-					BackColor = global::System.Drawing.Color.Black,
-					Opacity = 0.55,
-					WindowState = FormWindowState.Maximized,
-					FormBorderStyle = FormBorderStyle.None,
-					TopMost = true
-				};
+            var t = new Thread((ThreadStart)delegate
+            {
+                var result = WebAuthenticationResult.UserCancel;
 
-				var win = new Form
-				{
-					FormBorderStyle = FormBorderStyle.None,
-					TopMost = true
-				};
+                // TODO: Create a Dialog/Window class.
+                var backWin = new Form
+                {
+                    BackColor = global::System.Drawing.Color.Black,
+                    Opacity = 0.55,
+                    WindowState = FormWindowState.Maximized,
+                    FormBorderStyle = FormBorderStyle.None,
+                    TopMost = true
+                };
 
-				bool ignoreWindowSizeChange = false;
-				EventHandler winSizeChanged = delegate
-				{
-					if (ignoreWindowSizeChange)
-						return;
-					win.Top = (backWin.Height - win.Height) / 2;
-					win.Left = backWin.Left;
-				};
+                var win = new Form
+                {
+                    FormBorderStyle = FormBorderStyle.None,
+                    TopMost = true
+                };
 
-				win.SizeChanged += winSizeChanged;
-				backWin.SizeChanged += delegate
-				{
-					ignoreWindowSizeChange = true;
-					win.Width = backWin.Width;
-					win.Height = backWin.Height - 230;
-					ignoreWindowSizeChange = false;
-					winSizeChanged(backWin, EventArgs.Empty);
-				};
+                bool ignoreWindowSizeChange = false;
+                EventHandler winSizeChanged = delegate
+                {
+                    if (ignoreWindowSizeChange)
+                        return;
+                    win.Top = (backWin.Height - win.Height) / 2;
+                    win.Left = backWin.Left;
+                };
 
-				var headerPanel = new Panel { Width = 566, Height = 80 };
-				var bodyPanel = new Panel
-				{
-					Top = 80,
-					BackColor = global::System.Drawing.Color.White,
-				};
+                win.SizeChanged += winSizeChanged;
+                backWin.SizeChanged += delegate
+                {
+                    ignoreWindowSizeChange = true;
+                    win.Width = backWin.Width;
+                    win.Height = backWin.Height - 230;
+                    ignoreWindowSizeChange = false;
+                    winSizeChanged(backWin, EventArgs.Empty);
+                };
 
-				/*var backButton = new BackButton
-				{
-					Location = new global::System.Drawing.Point(0, 35),
-					TabStop = false
-				};
-				headerPanel.Controls.Add(backButton);
-				backButton.Click += (s, e) => win.Close();*/
+                var headerPanel = new Panel { Width = 566, Height = 80 };
+                var bodyPanel = new Panel
+                {
+                    Top = 80,
+                    BackColor = global::System.Drawing.Color.White,
+                };
 
-				var lbl = new Label
-				{
-					Location = new global::System.Drawing.Point(35, 30),
-					Font = new global::System.Drawing.Font("Segoe UI", 19.5f),
-					Text = "Connecting to a service",//WinRT.NET.Forms.Properties.Resources.AuthenticationBrokerTitle,
-					AutoSize = true
-				};
-				headerPanel.Controls.Add(lbl);
-				win.Controls.Add(headerPanel);
-				win.Controls.Add(bodyPanel);
+                /*var backButton = new BackButton
+                {
+                    Location = new global::System.Drawing.Point(0, 35),
+                    TabStop = false
+                };
+                headerPanel.Controls.Add(backButton);
+                backButton.Click += (s, e) => win.Close();*/
 
-				var browser = new WebBrowser { Width = 566 };
-				win.SizeChanged += delegate
-				{
-					bodyPanel.Width = win.Width;
-					bodyPanel.Height = win.Height - bodyPanel.Top;
-					browser.Height = win.Height - 80;
-					browser.Left = (win.Width - browser.Width) / 2;
-					headerPanel.Left = browser.Left;
-				};
+                var lbl = new Label
+                {
+                    Location = new global::System.Drawing.Point(35, 30),
+                    Font = new global::System.Drawing.Font("Segoe UI", 19.5f),
+                    Text = "Connecting to a service",//WinRT.NET.Forms.Properties.Resources.AuthenticationBrokerTitle,
+                    AutoSize = true
+                };
+                headerPanel.Controls.Add(lbl);
+                win.Controls.Add(headerPanel);
+                win.Controls.Add(bodyPanel);
 
-				browser.PreviewKeyDown += (sender, e) =>
-				{
-					if (e.KeyCode == Keys.Escape)
-						win.DialogResult = DialogResult.Abort;
-				};
-				bodyPanel.Controls.Add(browser);
-				win.Deactivate += (sender, e) =>
-				{
-					if (win.CanFocus)
-						win.DialogResult = DialogResult.Abort;
-				};
+                var browser = new WebBrowser { Width = 566 };
+                win.SizeChanged += delegate
+                {
+                    bodyPanel.Width = win.Width;
+                    bodyPanel.Height = win.Height - bodyPanel.Top;
+                    browser.Height = win.Height - 80;
+                    browser.Left = (win.Width - browser.Width) / 2;
+                    headerPanel.Left = browser.Left;
+                };
 
-				browser.Navigated += (sender, e) =>
-				{
-					if (e.Url.GetLeftPart(UriPartial.Path).EndsWith(_getCallbackTask.Result.ToString()))
-					{
-                        dynamic authData = e.Url.ToString().ParseUrlParameters().ToExpandoObject();
+                browser.PreviewKeyDown += (sender, e) =>
+                {
+                    if (e.KeyCode == Keys.Escape)
+                        win.DialogResult = DialogResult.Abort;
+                };
+                bodyPanel.Controls.Add(browser);
+                win.Deactivate += (sender, e) =>
+                {
+                    if (win.CanFocus)
+                        win.DialogResult = DialogResult.Abort;
+                };
 
-						tcs.TrySetResult(new UserAuthorizationResult(authData.oauth_token, authData.oauth_verifier));
-						win.DialogResult = DialogResult.OK;
-					}
-				};
+                browser.Navigated += (sender, e) =>
+                {
+                    if (e.Url.GetLeftPart(UriPartial.Path).EndsWith(_getCallbackTask.Result.ToString()))
+                    {
+                        var responseData = e.Url.Query.TrimStart('?');
+                        result = WebAuthenticationResult.FromResponseData(responseData);
+                        win.DialogResult = DialogResult.OK;
+                    }
+                };
 
-				browser.Navigate(requestUri);
+                browser.Navigate(requestUri);
 
-				backWin.Show();
-				win.ShowDialog();
-				backWin.Close();
+                backWin.Show();
+                win.ShowDialog();
+                backWin.Close();
 
-                tcs.TrySetCanceled();
-			});
+                tcs.TrySetResult(result);
+            });
 
-			t.SetApartmentState(ApartmentState.STA);
-			t.Start();
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
 
-			return tcs.Task;
+            return tcs.Task;
         }
 
         public void Dispose()
         {
             if (_disposed)
                 return;
-
-            if (_httpListener != null)
-                ((IDisposable)_httpListener).Dispose();
-
+            _listenerCancellation.Cancel();
             _disposed = true;
         }
         #endregion
@@ -186,7 +193,8 @@ namespace TestConsole
 
                 while (true)
                 {
-                    var client = await _httpListener.GetContextAsync();
+                    var client = await _httpListener.GetContextAsync()
+                                                    .OrCancel(_listenerCancellation.Token, _httpListener.Abort);
                     client.Response.Close();
                 }
             }

@@ -43,12 +43,14 @@
     <Compile Include="Cryptography\SHA1Internal.cs" />
     <Compile Include="Cryptography\SHA1Managed.cs" />
     <Compile Include="DataType.cs" />
+    <Compile Include="Extensions\AsyncExtensions.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\DynamicExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\WebExtensions.cs" />
+    <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="IoC.cs" />
-    <Compile Include="v1\IUserAuthorizer.cs" />
+    <Compile Include="Authentication\IWebAuthenticator.cs" />
     <Compile Include="Platform\IFile.cs" />
     <Compile Include="HttpParameters.cs" />
     <Compile Include="Json\Extensions.cs" />
@@ -61,7 +63,8 @@
     <Compile Include="SafeObject.cs" />
     <Compile Include="v1\OAuthClient.cs" />
     <Compile Include="v1\OAuthLogin.cs" />
-    <Compile Include="v1\UserAuthorizationResult.cs" />
+    <Compile Include="Authentication\WebAuthenticationResult.cs" />
+    <Compile Include="Authentication\WebAuthenticationStatus.cs" />
     <Compile Include="WebException.cs" />
   </ItemGroup>
   <ItemGroup>
