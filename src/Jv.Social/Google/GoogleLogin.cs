@@ -40,5 +40,19 @@ namespace Jv.Social.Google
                 secret: resp.oauth_token_secret
             );
         }
+
+        protected override async Task<KeyPair> GetAccessToken(KeyPair requestToken, string oAuthVerifier)
+        {
+            try
+            {
+                return await base.GetAccessToken(requestToken, oAuthVerifier);
+            }
+            catch(WebException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    throw new TaskCanceledException("Access denied by user", ex);
+                throw;
+            }
+        }
     }
 }
