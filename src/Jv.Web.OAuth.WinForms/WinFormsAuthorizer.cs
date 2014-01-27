@@ -10,10 +10,11 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Net;
 using Jv.Web.OAuth.Authentication;
+using Jv.Web.OAuth.WinForms.Properties;
 
-namespace TestConsole
+namespace Jv.Web.OAuth.WinForms
 {
-    class WinFormsAuthenticator : IWebAuthenticator
+    public class WinFormsAuthenticator : IWebAuthenticator
     {
         #region Attributes
         bool _disposed;
@@ -98,19 +99,19 @@ namespace TestConsole
                     BackColor = global::System.Drawing.Color.White,
                 };
 
-                /*var backButton = new BackButton
+                var backButton = new BackButton
                 {
                     Location = new global::System.Drawing.Point(0, 35),
                     TabStop = false
                 };
                 headerPanel.Controls.Add(backButton);
-                backButton.Click += (s, e) => win.Close();*/
+                backButton.Click += (s, e) => win.Close();
 
                 var lbl = new Label
                 {
                     Location = new global::System.Drawing.Point(35, 30),
                     Font = new global::System.Drawing.Font("Segoe UI", 19.5f),
-                    Text = "Connecting to a service",//WinRT.NET.Forms.Properties.Resources.AuthenticationBrokerTitle,
+                    Text = Resources.AuthenticationBrokerTitle,
                     AutoSize = true
                 };
                 headerPanel.Controls.Add(lbl);

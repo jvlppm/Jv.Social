@@ -5,6 +5,7 @@ using Jv.Web.OAuth;
 using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.Json;
 using Jv.Web.OAuth.v1;
+using Jv.Web.OAuth.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Linq;

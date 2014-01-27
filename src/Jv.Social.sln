@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jv.Social", "Jv.Social\Jv.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole.Desktop", "TestConsole\TestConsole.Desktop.csproj", "{453B7797-6220-44D9-820C-35CFCE4B1F34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jv.Web.OAuth.WinForms", "Jv.Web.OAuth.WinForms\Jv.Web.OAuth.WinForms.csproj", "{01618A3E-26D0-4298-8CF6-815E67E96A33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{453B7797-6220-44D9-820C-35CFCE4B1F34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{453B7797-6220-44D9-820C-35CFCE4B1F34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{453B7797-6220-44D9-820C-35CFCE4B1F34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01618A3E-26D0-4298-8CF6-815E67E96A33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01618A3E-26D0-4298-8CF6-815E67E96A33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01618A3E-26D0-4298-8CF6-815E67E96A33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01618A3E-26D0-4298-8CF6-815E67E96A33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
