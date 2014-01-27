@@ -51,9 +51,6 @@ namespace Jv.Web.OAuth.Json
     class JsonReader
     {
         TextReader _textReader;
-        Stack<int> _readChars;
-
-
         Stack<JsonToken> BackToken { get; set; }
 
         public JsonReader(string json)

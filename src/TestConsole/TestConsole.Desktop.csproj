@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,6 +11,8 @@
     <AssemblyName>TestConsole</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -59,15 +61,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jv.Social\Jv.Social.csproj">
-      <Project>{d9c2eb12-2f74-43fe-b27e-7b398fd61f08}</Project>
+      <Project>{D9C2EB12-2F74-43FE-B27E-7B398FD61F08}</Project>
       <Name>Jv.Social</Name>
     </ProjectReference>
     <ProjectReference Include="..\Jv.Web.OAuth.WinForms\Jv.Web.OAuth.WinForms.csproj">
-      <Project>{01618a3e-26d0-4298-8cf6-815e67e96a33}</Project>
+      <Project>{01618A3E-26D0-4298-8CF6-815E67E96A33}</Project>
       <Name>Jv.Web.OAuth.WinForms</Name>
     </ProjectReference>
     <ProjectReference Include="..\Jv.Web.OAuth\Jv.Web.OAuth.csproj">
-      <Project>{c1fd05b7-1627-448a-91e5-b0a8dc2afc54}</Project>
+      <Project>{C1FD05B7-1627-448A-91E5-B0A8DC2AFC54}</Project>
       <Name>Jv.Web.OAuth</Name>
     </ProjectReference>
   </ItemGroup>
