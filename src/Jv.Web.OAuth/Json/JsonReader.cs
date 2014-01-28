@@ -137,7 +137,7 @@ namespace Jv.Web.OAuth.Json
                                                 tokenChar = _textReader.Read();
                                                 if (tokenChar == -1)
                                                     break;
-                                                code.Append(tokenChar);
+                                                code.Append((char)tokenChar);
                                             }
                                             if(code.Length < 4)
                                                 break;

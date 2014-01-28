@@ -38,24 +38,27 @@ namespace Jv.Web.OAuth.v1
         public Task<dynamic> Ajax(string url,
             string method = "GET",
             HttpParameters parameters = null,
-            DataType dataType = DataType.Automatic)
+            DataType dataType = DataType.Automatic,
+            WebRequestFormat requestFormat = WebRequestFormat.MultiPart)
         {
-            return Ajax(new Uri(url), new HttpMethod(method), parameters, dataType);
+            return Ajax(new Uri(url), new HttpMethod(method), parameters, dataType, requestFormat);
         }
 
         public Task<dynamic> Ajax(Uri url,
             HttpParameters parameters = null,
-            DataType dataType = DataType.Automatic)
+            DataType dataType = DataType.Automatic,
+            WebRequestFormat requestFormat = WebRequestFormat.MultiPart)
         {
-            return Ajax(url, HttpMethod.Get, parameters, dataType);
+            return Ajax(url, HttpMethod.Get, parameters, dataType, requestFormat);
         }
 
         public async Task<dynamic> Ajax(Uri url,
             HttpMethod method,
             HttpParameters parameters = null,
-            DataType dataType = DataType.Automatic)
+            DataType dataType = DataType.Automatic,
+            WebRequestFormat requestFormat = WebRequestFormat.MultiPart)
         {
-            var req = CreateRequest(url, method, parameters);
+            var req = CreateRequest(url, method, parameters, requestFormat);
             var resp = await HttpClient.SendAsync(req);
 
             if (resp.StatusCode != System.Net.HttpStatusCode.OK)
@@ -68,15 +71,29 @@ namespace Jv.Web.OAuth.v1
             return SafeObject.Create(respData);
         }
 
-        protected virtual HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters)
+        protected virtual HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters, WebRequestFormat requestFormat)
         {
-            IList<Tuple<string, HttpContent, string>> requestContent = new List<Tuple<string, HttpContent, string>>();
-
             parameters = Sign(url, httpMethod, parameters);
 
+            switch (requestFormat)
+            {
+                case WebRequestFormat.MultiPart:
+                    return CreateHttpWebRequest(url, httpMethod, parameters);
+
+                case WebRequestFormat.MixedUrlMultipart:
+                    Uri urlWithParams = BuildUrl(url, parameters.Fields);
+                    return CreateHttpWebRequest(urlWithParams, httpMethod, parameters.FileParameters);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private static HttpRequestMessage CreateHttpWebRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters)
+        {
+            IList<Tuple<string, HttpContent, string>> requestContent = new List<Tuple<string, HttpContent, string>>();
             MultipartFormDataContent mpart = new MultipartFormDataContent();
 
-            if(parameters != null && httpMethod != HttpMethod.Get)
+            if (parameters != null && httpMethod != HttpMethod.Get)
             {
                 foreach (var p in parameters.Fields)
                     requestContent.Add(new Tuple<string, HttpContent, string>(p.Key, new StringContent(p.Value), null));
@@ -93,10 +110,10 @@ namespace Jv.Web.OAuth.v1
                     mpart.Add(content.Item2, content.Item1, content.Item3);
             }
 
-            var requestUrl = httpMethod == HttpMethod.Get? BuildUrl(url, parameters.Fields) : url;
+            var requestUrl = httpMethod == HttpMethod.Get ? BuildUrl(url, parameters.Fields) : url;
             return new HttpRequestMessage(httpMethod, requestUrl)
             {
-                Content = mpart.Any()? mpart : null
+                Content = mpart.Any() ? mpart : null
             };
         }
 

@@ -56,7 +56,8 @@ namespace Jv.Web.OAuth.Extensions
         {
             if (dataType == DataType.Automatic)
             {
-                switch (content.Headers.ContentType.MediaType)
+                var contentType = content.Headers.ContentType;
+                switch (contentType == null? null : contentType.MediaType)
                 {
                     case "application/json":
                         dataType = DataType.Json;
