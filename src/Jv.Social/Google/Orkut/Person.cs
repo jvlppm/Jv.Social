@@ -20,6 +20,6 @@ namespace Jv.Social.Google.Orkut
 
         public Name Name { get; private set; }
         public string ThumbnailUrl { get { return Object.thumbnailUrl; } }
-        public bool IsViewer { get { return Object.isViewer; } }
+        public bool IsViewer { get { return Object.isViewer as bool? ?? false; } }
     }
 }

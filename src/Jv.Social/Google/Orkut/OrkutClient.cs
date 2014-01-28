@@ -100,6 +100,14 @@ namespace Jv.Social.Google.Orkut
         {
             return Ajax(new PersonGet(UserIds.Me));
         }
+
+        public Task<Page<Person>> GetFriends(string userId, int startIndex, int count)
+        {
+            if (userId == null)
+                throw new ArgumentNullException("userId");
+
+            return Ajax(new PeopleGet(userId, GroupIds.Friends, count, startIndex));
+        }
         #endregion
     }
 }

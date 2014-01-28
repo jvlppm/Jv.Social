@@ -8,13 +8,16 @@ namespace Jv.Social.Google.Orkut
     {
         public T[] List { get; private set; }
 
+        public bool Filtered { get { return Object.filtered; } }
+        public int StartIndex { get { return Object.startIndex; } }
         public int TotalResults { get { return Object.totalResults; } }
+        //updatedSince: false
 
         public Page(SafeObject d)
             : base(d)
         {
-            var list = (IEnumerable<dynamic>)Object.list;
-            List = list.Select(dl => DynamicWrapper.Create<T>((SafeObject)dl)).ToArray();
+            var list = (SafeList)Object.list;
+            List = list.OfType<SafeObject>().Select(dl => DynamicWrapper.Create<T>((SafeObject)dl)).ToArray();
         }
     }
 }
