@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Google\GoogleLogin.cs" />
+    <Compile Include="Google\Orkut\IRpc.cs" />
     <Compile Include="Google\Orkut\OrkutClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Twitter\TwitterClient.cs" />

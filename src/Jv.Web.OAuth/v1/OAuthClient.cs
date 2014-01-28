@@ -40,11 +40,18 @@ namespace Jv.Web.OAuth.v1
             HttpParameters parameters = null,
             DataType dataType = DataType.Automatic)
         {
-            return Ajax(new Uri(url), method, parameters, dataType);
+            return Ajax(new Uri(url), new HttpMethod(method), parameters, dataType);
+        }
+
+        public Task<dynamic> Ajax(Uri url,
+            HttpParameters parameters = null,
+            DataType dataType = DataType.Automatic)
+        {
+            return Ajax(url, HttpMethod.Get, parameters, dataType);
         }
 
         public async Task<dynamic> Ajax(Uri url,
-            string method = "GET",
+            HttpMethod method,
             HttpParameters parameters = null,
             DataType dataType = DataType.Automatic)
         {
@@ -61,13 +68,11 @@ namespace Jv.Web.OAuth.v1
             return SafeObject.Create(respData);
         }
 
-        protected virtual HttpRequestMessage CreateRequest(Uri url, string method, HttpParameters parameters)
+        protected virtual HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters)
         {
             IList<Tuple<string, HttpContent, string>> requestContent = new List<Tuple<string, HttpContent, string>>();
 
-            parameters = Sign(url, method, parameters);
-
-            var httpMethod = new HttpMethod(method);
+            parameters = Sign(url, httpMethod, parameters);
 
             MultipartFormDataContent mpart = new MultipartFormDataContent();
 
@@ -100,7 +105,7 @@ namespace Jv.Web.OAuth.v1
             return new Uri(url + "?" + orderedParams.AsUrlParameters());
         }
 
-        protected HttpParameters Sign(Uri url, string method, HttpParameters parameters)
+        protected HttpParameters Sign(Uri url, HttpMethod method, HttpParameters parameters)
         {
             var signed = new HttpParameters(parameters);
             var oAuthParams = GetOauthParameters(url, method, signed.Fields);
@@ -109,7 +114,7 @@ namespace Jv.Web.OAuth.v1
             return signed;
         }
 
-        protected IDictionary<string, string> GetOauthParameters(Uri url, string method, IEnumerable<KeyValuePair<string, string>> parameters = null)
+        protected IDictionary<string, string> GetOauthParameters(Uri url, HttpMethod method, IEnumerable<KeyValuePair<string, string>> parameters = null)
         {
             parameters = parameters ?? Enumerable.Empty<KeyValuePair<string, string>>();
 
@@ -142,10 +147,10 @@ namespace Jv.Web.OAuth.v1
             return Random.Next(123400, 9999999).ToString();
         }
 
-        protected string BuildSignature(Uri url, string type, IEnumerable<KeyValuePair<string, string>> parameters)
+        protected string BuildSignature(Uri url, HttpMethod method, IEnumerable<KeyValuePair<string, string>> parameters)
         {
             parameters = parameters.OrderBy(p => p.Key);
-            return GetSignature(string.Format("{0}&{1}&{2}", type, Uri.EscapeDataString(url.ToString()), parameters.AsUrlParameters().UriDataEscape()));
+            return GetSignature(string.Format("{0}&{1}&{2}", method, Uri.EscapeDataString(url.ToString()), parameters.AsUrlParameters().UriDataEscape()));
         }
 
         protected string GetSignature(string signatureBase)

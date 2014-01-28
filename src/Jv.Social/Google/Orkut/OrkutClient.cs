@@ -1,5 +1,6 @@
 ﻿using Jv.Web.OAuth;
 using Jv.Web.OAuth.Authentication;
+using Jv.Web.OAuth.Json;
 using Jv.Web.OAuth.v1;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Jv.Social.Google.Orkut
         public OAuthClient OAuthClient { get; private set; }
         #endregion
 
+        #region Login
         public OrkutClient(OAuthClient oAuthClient)
         {
             if (oAuthClient == null)
@@ -35,5 +37,62 @@ namespace Jv.Social.Google.Orkut
 
             return new OrkutClient(oAuthClient);
         }
+        #endregion
+
+        #region Core
+        public async Task Ajax(IEnumerable<IRpc> rpcs)
+        {
+            int id = 0;
+            var rpcsDic = rpcs.ToDictionary(i => { return ("request_" + id++).ToString(); });
+            if (rpcsDic.Count == 0)
+                return;
+
+            var parameters = new HttpParameters {
+                { "request", rpcsDic.Select(rpc => new {
+                    id = rpc.Key,
+                    method = rpc.Value.Method,
+                    @params = rpc.Value.Parameters.Fields
+                }).ToJson() }
+            };
+            parameters.AddRange(rpcsDic.Values.SelectMany(r => r.Parameters.Files));
+
+            var data = await OAuthClient.Ajax("http://www.orkut.com/social/rpc",
+                method: "POST",
+                parameters: parameters);
+
+            foreach (var result in data)
+            {
+                var rid = ((string)result.id);
+                if (result.data != null)
+                    rpcsDic[rid].SetResult(result.data);
+                if (result.error != null)
+                    rpcsDic[rid].SetError(result.error);
+                rpcsDic.Remove(rid);
+            }
+
+            foreach (var rid in rpcsDic.Values)
+                rid.SetResult(null);
+
+            await Task.WhenAll(rpcs.Select(r => r.Task));
+        }
+
+        public async Task Ajax(IRpc rpc)
+        {
+            try
+            {
+                await Ajax(new[] { rpc });
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        public async Task<T> Ajax<T>(IRpc<T> rpc)
+        {
+            await Ajax((IRpc)rpc);
+            return await rpc.Task;
+        }
+        #endregion
     }
 }
