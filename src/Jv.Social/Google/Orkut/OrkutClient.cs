@@ -5,7 +5,7 @@ using Jv.Web.OAuth.v1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Jv.Social.Google.Orkut
@@ -66,7 +66,7 @@ namespace Jv.Social.Google.Orkut
                 if (result.data != null)
                     rpcsDic[rid].SetResult(result.data);
                 if (result.error != null)
-                    rpcsDic[rid].SetError(result.error);
+                    rpcsDic[rid].SetError((HttpStatusCode)result.error.code, result);
                 rpcsDic.Remove(rid);
             }
 
@@ -92,6 +92,13 @@ namespace Jv.Social.Google.Orkut
         {
             await Ajax((IRpc)rpc);
             return await rpc.Task;
+        }
+        #endregion
+
+        #region API
+        public Task<Person> GetCurrentUser()
+        {
+            return Ajax(new PersonGet(UserIds.Me));
         }
         #endregion
     }

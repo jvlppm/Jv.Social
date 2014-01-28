@@ -1,4 +1,5 @@
 ﻿using Jv.Web.OAuth;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Jv.Social.Google.Orkut
@@ -9,7 +10,7 @@ namespace Jv.Social.Google.Orkut
         HttpParameters Parameters { get; }
         Task Task { get; }
         void SetResult(dynamic res);
-        void SetError(dynamic res);
+        void SetError(HttpStatusCode code, dynamic res);
     }
 
     public interface IRpc<T> : IRpc

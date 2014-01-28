@@ -200,7 +200,21 @@ namespace Jv.Web.OAuth.Json
             if (obj is string || obj is char)
                 return "\"" + EncodeString(obj.ToString()) + "\"";
 
+            IEnumerable<string> dictKeys = null;
+            Func<string, object> getValue = null;
+
             if (obj is IDictionary && ((IDictionary)obj).Keys.OfType<object>().All(k => k is string))
+            {
+                dictKeys = ((IDictionary)obj).Keys.OfType<string>();
+                getValue = s => ((IDictionary)obj)[s];
+            }
+            else if (obj is IDictionary<string, object>)
+            {
+                dictKeys = ((IDictionary<string, object>)obj).Keys;
+                getValue = s => ((IDictionary<string, object>)obj)[s];
+            }
+
+            if (dictKeys != null)
             {
                 StringBuilder json = new StringBuilder();
                 if (ident)
@@ -213,9 +227,11 @@ namespace Jv.Web.OAuth.Json
                 if (ident)
                     currentIdentation++;
 
-                foreach (var key in (obj as IDictionary).Keys)
+                foreach (var key in dictKeys)
                 {
-                    if ((obj as IDictionary)[key] is Delegate)
+                    object value = getValue(key);
+
+                    if (value is Delegate)
                         continue;
 
                     if (first) first = false;
@@ -227,7 +243,7 @@ namespace Jv.Web.OAuth.Json
                         json.Append(new string('\t', currentIdentation));
                     }
 
-                    json.AppendFormat(ident ? "\"{0}\": {1}" : "\"{0}\":{1}", key, Extract((obj as IDictionary)[key], ident, currentIdentation));
+                    json.AppendFormat(ident ? "\"{0}\": {1}" : "\"{0}\":{1}", key, Extract(value, ident, currentIdentation));
                 }
 
                 if (ident)

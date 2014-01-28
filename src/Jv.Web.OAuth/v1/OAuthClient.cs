@@ -85,8 +85,13 @@ namespace Jv.Web.OAuth.v1
             foreach (var f in parameters.Files)
                 requestContent.Add(new Tuple<string, HttpContent, string>(f.Key, new StreamContent(f.Value.Content), f.Value.Name));
 
-            foreach(var content in requestContent.OrderBy(i => i.Item1))
-                mpart.Add(content.Item2, content.Item1, content.Item3);
+            foreach (var content in requestContent.OrderBy(i => i.Item1))
+            {
+                if (content.Item3 == null)
+                    mpart.Add(content.Item2, content.Item1);
+                else
+                    mpart.Add(content.Item2, content.Item1, content.Item3);
+            }
 
             var requestUrl = httpMethod == HttpMethod.Get? BuildUrl(url, parameters.Fields) : url;
             return new HttpRequestMessage(httpMethod, requestUrl)

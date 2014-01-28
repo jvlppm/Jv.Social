@@ -41,6 +41,8 @@ namespace TestConsole
                 {
                     var orkutClient = await OrkutClient.Login(orkutAppInfo, authenticator);
                     Console.WriteLine("Orkut: " + orkutClient.OAuthClient.AccessToken);
+                    var user = await orkutClient.GetCurrentUser();
+                    Console.WriteLine("Orkut: {0} {1}", user.Name.GivenName, user.Name.FamilyName);
 
                     //var twitterClient = await TwitterClient.Login(twitterAppInfo, authenticator);
                     //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);
