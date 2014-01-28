@@ -3,39 +3,78 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 
 namespace Jv.Web.OAuth
 {
     public class SafeObject : DynamicObject, IDictionary<string, object>
     {
-        IDictionary<string, object> _obj;
-        public SafeObject(IDictionary<string, object> dict)
+        static SafeObject Null = new SafeObject();
+
+        public static bool operator ==(SafeObject a, object b)
         {
-            _obj = dict;
+            if (Object.ReferenceEquals(a, null))
+                a = Null;
+
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+                return true;
+
+            if (b is SafeObject)
+                b = ((SafeObject)b)._instance;
+
+            if (a._instance != null)
+                return a._instance.Equals(b);
+
+            return a._instance == b;
         }
 
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public static bool operator !=(SafeObject a, object b)
         {
-            if (_obj.ContainsKey(binder.Name))
-            {
-                result = _obj[binder.Name];
-                var resultAsDict = result as IDictionary<string, object>;
-                if (resultAsDict != null)
-                    result = new SafeObject(resultAsDict);
-            }
+            return !(a == b);
+        }
+
+        object _instance;
+        IDictionary<string, object> _obj;
+
+        private SafeObject() { }
+        public SafeObject(dynamic instance)
+        {
+            _instance = instance;
+            _obj = instance as IDictionary<string, object>;
+        }
+
+        public override bool TryConvert(ConvertBinder binder, out object result)
+        {
+            if (_instance != null && binder.ReturnType.GetTypeInfo().IsAssignableFrom(_instance.GetType().GetTypeInfo()))
+                result = _instance;
             else
                 result = null;
 
             return true;
         }
 
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            if (_obj != null && _obj.ContainsKey(binder.Name))
+                result = SafeObject.Create(_obj[binder.Name]);
+            else
+                result = Null;
+
+            return true;
+        }
+
         public override IEnumerable<string> GetDynamicMemberNames()
         {
+            if (_obj == null)
+                return Enumerable.Empty<string>();
             return _obj.Keys;
         }
 
         public static dynamic Create(object obj)
         {
+            if (obj == null)
+                return Null;
             if (obj is IList<object>)
                 return new SafeList((IList<object>)obj);
             if (obj is IDictionary<string, object>)
