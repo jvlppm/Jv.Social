@@ -64,6 +64,63 @@ namespace Jv.Social.Twitter
                 resource: "account/verify_credentials"
             );
         }
+
+        #region Tweets
+        /// <summary>
+        /// Updates the authenticating user's current status, also known as tweeting.
+        /// </summary>
+        /// <param name="status">The text of your status update, typically up to 140 characters.</param>
+        /// <param name="inReplyToStatusId">
+        ///     The ID of an existing status that the update is in reply to.
+        ///     Note: This parameter will be ignored unless the author of the tweet this parameter references is mentioned within the status text.
+        ///     Therefore, you must include @username, where username is the author of the referenced tweet, within the update.
+        /// </param>
+        /// <!--param name="location">The location (lat/long) this tweet refers to.</param-->
+        /// <returns>Tweet operation</returns>
+        public Task<Tweet> Tweet(string status, string inReplyToStatusId = null/*, Geocoordinate location*/)
+        {
+            var parameters = new HttpParameters {
+                    { "status", status },
+                    { "in_reply_to_status_id", inReplyToStatusId },
+                };
+
+            /*if (location != null)
+            {
+                parameters.Add("lat", location.Latitude.ToString(CultureInfo.InvariantCulture));
+                parameters.Add("long", location.Longitude.ToString(CultureInfo.InvariantCulture));
+            }*/
+
+            return Post<Tweet>(
+                resource: "statuses/update",
+                data: parameters
+            );
+        }
+
+
+        /// <summary>
+        /// Retweets a tweet.
+        /// </summary>
+        /// <param name="id">The ID of the desired status.</param>
+        /// <returns>Returns the original tweet with retweet details embedded.</returns>
+        public Task<Tweet> Retweet(string id)
+        {
+            return Post<Tweet>(
+                resource: "statuses/retweet/" + id
+            );
+        }
+
+        /// <summary>
+        /// Destroys the status specified by the required ID parameter. The authenticating user must be the author of the specified status. Returns the destroyed status if successful.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<Tweet> RemoveTweet(string id)
+        {
+            return Post<Tweet>(
+                resource: "statuses/destroy/" + id
+            );
+        }
+        #endregion
         #endregion
     }
 }

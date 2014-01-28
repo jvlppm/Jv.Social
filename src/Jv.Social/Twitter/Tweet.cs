@@ -41,6 +41,11 @@ namespace Jv.Social.Twitter
         public bool Retweeted { get { return Object.retweeted; } }
 
         /// <summary>
+        /// Users can amplify the broadcast of tweets authored by other users by retweeting. Retweets can be distinguished from typical Tweets by the existence of a retweeted_status attribute. This attribute contains a representation of the original Tweet that was retweeted. Note that retweets of retweets do not show representations of the intermediary retweet, but only the original tweet. (Users can also unretweet a retweet they created by deleting their retweet.)
+        /// </summary>
+        public Tweet OriginalTweet { get { return Object.retweeted_status == null ? null : new Tweet((SafeObject)Object.retweeted_status); } }
+
+        /// <summary>
         /// The actual UTF-8 text of the status update.
         /// </summary>
         public string Text { get { return Object.text; } }
