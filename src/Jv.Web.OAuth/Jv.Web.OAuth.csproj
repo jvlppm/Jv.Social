@@ -68,6 +68,7 @@
     <Compile Include="v1\OAuthLogin.cs" />
     <Compile Include="Authentication\WebAuthenticationResult.cs" />
     <Compile Include="Authentication\WebAuthenticationStatus.cs" />
+    <Compile Include="v2\OAuthClientBearer.cs" />
     <Compile Include="WebException.cs" />
     <Compile Include="WebRequestFormat.cs" />
   </ItemGroup>
