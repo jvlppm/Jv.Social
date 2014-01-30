@@ -1,12 +1,9 @@
 ﻿// http://oauth.net/core/1.0a/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.Authentication;
+using Jv.Web.OAuth.Extensions;
+using System;
+using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace Jv.Web.OAuth.v1
 {

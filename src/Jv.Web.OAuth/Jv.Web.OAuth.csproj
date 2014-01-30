@@ -53,6 +53,7 @@
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Authentication\IWebAuthenticator.cs" />
+    <Compile Include="OAuthClientBase.cs" />
     <Compile Include="Platform\IFile.cs" />
     <Compile Include="HttpParameters.cs" />
     <Compile Include="Json\Extensions.cs" />

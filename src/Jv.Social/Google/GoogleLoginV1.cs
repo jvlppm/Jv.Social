@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Jv.Social.Google
 {
-    public class GoogleLogin : OAuthLogin
+    public class GoogleLoginV1 : OAuthLogin
     {
         Uri UrlScope { get; set; }
 
-        public GoogleLogin(KeyPair applicationInfo, Uri urlScope)
+        public GoogleLoginV1(KeyPair applicationInfo, Uri urlScope)
             : base(applicationInfo,
                 urlGetRequestToken: new Uri("https://www.google.com/accounts/OAuthGetRequestToken"),
                 urlAuthorizeToken: new Uri("https://www.google.com/accounts/OAuthAuthorizeToken"),

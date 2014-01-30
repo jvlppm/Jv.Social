@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DynamicWrapper.cs" />
-    <Compile Include="Google\GoogleLogin.cs" />
+    <Compile Include="Google\GoogleLoginV1.cs" />
     <Compile Include="Google\Orkut\Get.cs" />
     <Compile Include="Google\Orkut\GroupIds.cs" />
     <Compile Include="Google\Orkut\IRpc.cs" />

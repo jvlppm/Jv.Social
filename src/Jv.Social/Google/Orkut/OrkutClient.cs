@@ -32,7 +32,7 @@ namespace Jv.Social.Google.Orkut
 
         public static async Task<OrkutClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator)
         {
-            var login = new GoogleLogin(applicationInfo, new Uri("http://orkut.gmodules.com/social"));
+            var login = new GoogleLoginV1(applicationInfo, new Uri("http://orkut.gmodules.com/social"));
             var oAuthClient = await login.Login(authenticator);
 
             return new OrkutClient(oAuthClient);
