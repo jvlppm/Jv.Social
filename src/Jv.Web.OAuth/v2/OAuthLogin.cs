@@ -1,4 +1,44 @@
-﻿using Jv.Web.OAuth.Extensions;
+﻿/*
+ * 1) Solicita authorization grant do servidor (de uma das seguintes maneiras)
+ * 2) Envia o authorization grant para buscar o AccessToken (e opcional refresh token)
+ * 3) Utiliza o AccessToken para realizar os requests.
+ * 
+ * 4 Modos de Login (solicitar access token)
+ *    - authorization code (4.1)
+ *          abre o browser, para pegar o authorization code
+ *          url de login:
+ *              response_type: code
+ *              client_id: <id string>
+ *              redirect_uri?: <callback uri>
+ *              scope?: <string>
+ *              state? <campo opcional que deverá ser retornado pelo servidor>
+ *          resposta:
+ *              code: <string>
+ *          repassa o authorization code e pega o access token.
+ *              Envia:
+ *                  grant_type: authorization_code
+ *                  code: <authorization code>
+ *                  redirect_uri: <callback uri>
+ *                  client_id: <id string>
+ *              Recebe:
+ *              <AccessToken>
+ *    - implicit (4.2)
+ *          modo web, necessário suporte à execução de JavaScript
+ *    - resource owner password credentials (4.3)
+ *          envia usuário e senha para o servidor e pega o access token.
+ *    - client credentials (4.4)
+ *          envia identificador interno do aplicativo, e pega o access token.
+ *    - additional types
+ *    
+ *  Access Token Types:
+ *      Definem como o pacote será assinado, contém a string access_token e opcionalmente parâmetros adicionais.
+ *   - bearer (http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-06)
+ *      adiciona o access_token no request
+ *   - mac (http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-01)
+ *      envia uma chave mac junto com o access_token, que é usado para assinar partes do pacote.
+ * */
+
+using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.Authentication;
 using System;
 using System.Collections.Generic;
@@ -34,7 +74,7 @@ namespace Jv.Web.OAuth.v2
             HttpClient = httpClient;
         }
 
-        public virtual async Task<OAuthClientV2> Login(IWebAuthenticator authenticator)
+        public virtual async Task<OAuthClient> Login(IWebAuthenticator authenticator)
         {
             if (authenticator == null)
                 throw new ArgumentNullException("authenticator");
@@ -44,6 +84,17 @@ namespace Jv.Web.OAuth.v2
             return DecodeAccessToken(accessToken);
         }
 
+        /// <summary>
+        /// Requests an authorization grant from the server, which is a
+        /// credential representing the resource owner's authorization,
+        /// expressed using one of four grant types defined in this
+        /// specification or using an extension grant type.  The
+        /// authorization grant type depends on the method used by the
+        /// client to request authorization and the types supported by the
+        /// authorization server.
+        /// </summary>
+        /// <param name="authenticator"></param>
+        /// <returns></returns>
         protected virtual async Task<string> RequestAuthorizationCode(IWebAuthenticator authenticator)
         {
             var redirectUri = await authenticator.GetCallback();
@@ -94,7 +145,7 @@ namespace Jv.Web.OAuth.v2
             return authorizationCode;
         }
 
-        protected OAuthClientV2 DecodeAccessToken(dynamic serverResponse)
+        protected OAuthClient DecodeAccessToken(dynamic serverResponse)
         {
             string tokenType = serverResponse.token_type;
 

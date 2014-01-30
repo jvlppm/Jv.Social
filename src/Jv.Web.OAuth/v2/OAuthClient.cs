@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Jv.Web.OAuth.v2
 {
-    public abstract class OAuthClientV2 : WebClient
+    public abstract class OAuthClient : WebClient
     {
         public KeyPair ApplicationInfo { get; private set; }
         /// <summary>
@@ -31,7 +31,7 @@ namespace Jv.Web.OAuth.v2
         /// </summary>
         public string RefreshToken { get; private set; }
 
-        protected OAuthClientV2(KeyPair applicationInfo,
+        protected OAuthClient(KeyPair applicationInfo,
                                 string accessToken,
                                 string tokenType,
                                 TimeSpan? expiresIn,
