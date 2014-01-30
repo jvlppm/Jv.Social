@@ -16,22 +16,34 @@ namespace Jv.Web.OAuth
             if (Object.ReferenceEquals(a, null))
                 a = Null;
 
-            // If both are null, or both are same instance, return true.
-            if (System.Object.ReferenceEquals(a, b))
-                return true;
-
-            if (b is SafeObject)
-                b = ((SafeObject)b)._instance;
-
-            if (a._instance != null)
-                return a._instance.Equals(b);
-
-            return a._instance == b;
+            return a.Equals(b);
         }
 
         public static bool operator !=(SafeObject a, object b)
         {
             return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            if (_instance != null)
+                return _instance.GetHashCode();
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(this, obj))
+                return true;
+
+            if (obj is SafeObject)
+                obj = ((SafeObject)obj)._instance;
+
+            if (_instance != null)
+                return _instance.Equals(obj);
+
+            return _instance == obj;
         }
 
         object _instance;
@@ -114,7 +126,12 @@ namespace Jv.Web.OAuth
 
         public object this[string key]
         {
-            get { return _obj[key]; }
+            get
+            {
+                if (!_obj.ContainsKey(key))
+                    return Null;
+                return SafeObject.Create(_obj[key]);
+            }
             set { _obj[key] = value; }
         }
 

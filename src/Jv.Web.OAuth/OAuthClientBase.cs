@@ -10,24 +10,15 @@ using System.Security.Cryptography;
 
 namespace Jv.Web.OAuth
 {
-    public abstract class OAuthClientBase
+    public class WebClient
     {
-        #region Constants
-        protected static readonly Random Random = new Random(Environment.TickCount);
-        #endregion
-
         #region Properties
-        public KeyPair ApplicationInfo { get; private set; }
         public HttpClient HttpClient { get; private set; }
         #endregion
 
         #region Constructors
-        public OAuthClientBase(KeyPair applicationInfo, HttpClient httpClient = null)
+        public WebClient(HttpClient httpClient = null)
         {
-            if (applicationInfo == null)
-                throw new ArgumentNullException("applicationInfo");
-
-            ApplicationInfo = applicationInfo;
             HttpClient = httpClient ?? new HttpClient();
         }
         #endregion
@@ -70,15 +61,13 @@ namespace Jv.Web.OAuth
 
         protected virtual HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters, WebRequestFormat requestFormat)
         {
-            parameters = Sign(url, httpMethod, parameters);
-
             switch (requestFormat)
             {
                 case WebRequestFormat.MultiPart:
                     return CreateHttpWebRequest(url, httpMethod, parameters);
 
                 case WebRequestFormat.MixedUrlMultipart:
-                    Uri urlWithParams = BuildUrl(url, parameters.Fields);
+                    Uri urlWithParams = parameters.AddToUrl(url);
                     return CreateHttpWebRequest(urlWithParams, httpMethod, parameters.FileParameters);
             }
 
@@ -107,22 +96,11 @@ namespace Jv.Web.OAuth
                     mpart.Add(content.Item2, content.Item1, content.Item3);
             }
 
-            var requestUrl = httpMethod == HttpMethod.Get ? BuildUrl(url, parameters.Fields) : url;
+            var requestUrl = httpMethod == HttpMethod.Get ? parameters.AddToUrl(url) : url;
             return new HttpRequestMessage(httpMethod, requestUrl)
             {
                 Content = mpart.Any() ? mpart : null
             };
         }
-
-        protected static Uri BuildUrl(Uri url, IEnumerable<KeyValuePair<string, string>> parameters)
-        {
-            if (!parameters.Any())
-                return url;
-
-            var orderedParams = parameters.OrderBy(p => p.Key);
-            return new Uri(url + "?" + orderedParams.AsUrlParameters());
-        }
-
-        protected abstract HttpParameters Sign(Uri url, HttpMethod method, HttpParameters parameters);
     }
 }

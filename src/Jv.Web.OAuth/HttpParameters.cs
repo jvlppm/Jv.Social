@@ -1,5 +1,6 @@
 ﻿using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.Platform;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,6 +138,15 @@ namespace Jv.Web.OAuth
         public void Sort()
         {
             _parameters.Sort((a, b) => a.Key.CompareTo(b.Key));
+        }
+
+        public Uri AddToUrl(Uri baseUrl)
+        {
+            if (!Fields.Any())
+                return baseUrl;
+
+            var orderedParams = Fields.OrderBy(p => p.Key);
+            return new Uri(baseUrl + "?" + orderedParams.AsUrlParameters());
         }
     }
 }

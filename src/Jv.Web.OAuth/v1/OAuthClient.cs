@@ -8,22 +8,37 @@ using System.Security.Cryptography;
 
 namespace Jv.Web.OAuth.v1
 {
-    public class OAuthClient : OAuthClientBase
+    public class OAuthClient : WebClient
     {
+        #region Constants
+        protected static readonly Random Random = new Random(Environment.TickCount);
+        #endregion
+
         #region Properties
+        public KeyPair ApplicationInfo { get; private set; }
         public KeyPair AccessToken { get; private set; }
         #endregion
 
         #region Constructors
         public OAuthClient(KeyPair applicationInfo, KeyPair accessToken = null, HttpClient httpClient = null)
-            : base(applicationInfo, httpClient)
+            : base(httpClient)
         {
+            if (applicationInfo == null)
+                throw new ArgumentNullException("applicationInfo");
+
+            ApplicationInfo = applicationInfo;
             AccessToken = accessToken;
         }
         #endregion
 
         #region Protected Methods
-        protected override HttpParameters Sign(Uri url, HttpMethod method, HttpParameters parameters)
+        protected override HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters, WebRequestFormat requestFormat)
+        {
+            var signedParams = Sign(url, httpMethod, parameters);
+            return base.CreateRequest(url, httpMethod, signedParams, requestFormat);
+        }
+
+        protected HttpParameters Sign(Uri url, HttpMethod method, HttpParameters parameters)
         {
             var signed = new HttpParameters(parameters);
             var oAuthParams = GetOauthParameters(url, method, signed.Fields);
