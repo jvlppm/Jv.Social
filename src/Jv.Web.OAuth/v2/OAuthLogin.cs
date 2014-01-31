@@ -56,7 +56,7 @@ namespace Jv.Web.OAuth.v2
         public KeyPair ApplicationInfo { get; private set; }
         public Uri UrlGetAuthorizationCode { get; private set; }
         public Uri UrlGetAccessToken { get; private set; }
-        public Uri Scope { get; private set; }
+        public string Scope { get; private set; }
         public HttpClient HttpClient { get; private set; }
         #endregion
 
@@ -64,7 +64,7 @@ namespace Jv.Web.OAuth.v2
         public OAuthLogin(KeyPair applicationInfo,
             Uri urlGetAuthorizationCode,
             Uri urlGetAccessToken,
-            Uri scope,
+            string scope,
             HttpClient httpClient = null)
         {
             ApplicationInfo = applicationInfo;
@@ -73,7 +73,9 @@ namespace Jv.Web.OAuth.v2
             Scope = scope;
             HttpClient = httpClient;
         }
+        #endregion
 
+        #region 4.1 - Authorization Code Grant
         public virtual async Task<OAuthClient> Login(IWebAuthenticator authenticator)
         {
             if (authenticator == null)
@@ -88,13 +90,10 @@ namespace Jv.Web.OAuth.v2
         /// Requests an authorization grant from the server, which is a
         /// credential representing the resource owner's authorization,
         /// expressed using one of four grant types defined in this
-        /// specification or using an extension grant type.  The
-        /// authorization grant type depends on the method used by the
-        /// client to request authorization and the types supported by the
-        /// authorization server.
+        /// specification or using an extension grant type.
         /// </summary>
-        /// <param name="authenticator"></param>
-        /// <returns></returns>
+        /// <param name="authenticator">Platform specific UI to interact with the user.</param>
+        /// <returns>Authorization code granted by the server.</returns>
         protected virtual async Task<string> RequestAuthorizationCode(IWebAuthenticator authenticator)
         {
             var redirectUri = await authenticator.GetCallback();
@@ -103,7 +102,7 @@ namespace Jv.Web.OAuth.v2
                 { "response_type", "code" },
                 { "client_id", ApplicationInfo.Key },
                 { "redirect_uri", redirectUri.ToString() },
-                { "scope", Scope.ToString() }
+                { "scope", Scope }
             }.AddToUrl(UrlGetAuthorizationCode);
 
             var userAuthResult = await authenticator.AuthorizeUser(loginUrl);
@@ -144,12 +143,13 @@ namespace Jv.Web.OAuth.v2
 
             return authorizationCode;
         }
+        #endregion
 
         protected OAuthClient DecodeAccessToken(dynamic serverResponse)
         {
             string tokenType = serverResponse.token_type;
 
-            Uri scope = serverResponse.scope == null? Scope : new Uri(serverResponse.scope);
+            string scope = serverResponse.scope == null? Scope : serverResponse.scope;
 
             TimeSpan? expiresIn = null;
             int? expires = serverResponse.expires_in;
@@ -164,6 +164,5 @@ namespace Jv.Web.OAuth.v2
 
             throw new NotImplementedException("token_type of " + tokenType + " is not supported.");
         }
-        #endregion
     }
 }

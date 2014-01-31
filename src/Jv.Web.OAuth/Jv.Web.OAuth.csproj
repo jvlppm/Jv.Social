@@ -53,6 +53,7 @@
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Authentication\IWebAuthenticator.cs" />
+    <Compile Include="v2\OAuthAccessToken.cs" />
     <Compile Include="WebClient.cs" />
     <Compile Include="Platform\IFile.cs" />
     <Compile Include="HttpParameters.cs" />
@@ -68,7 +69,7 @@
     <Compile Include="v1\OAuthLogin.cs" />
     <Compile Include="Authentication\WebAuthenticationResult.cs" />
     <Compile Include="Authentication\WebAuthenticationStatus.cs" />
-    <Compile Include="v2\OAuthClientBearer.cs" />
+    <Compile Include="v2\BearerAccessToken.cs" />
     <Compile Include="v2\OAuthClient.cs" />
     <Compile Include="v2\OAuthLogin.cs" />
     <Compile Include="WebException.cs" />
