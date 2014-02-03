@@ -21,7 +21,7 @@
  *                  redirect_uri: <callback uri>
  *                  client_id: <id string>
  *              Recebe:
- *              <AccessToken>
+ *                  <AccessToken>
  *    - implicit (4.2)
  *          modo web, necessário suporte à execução de JavaScript
  *    - resource owner password credentials (4.3)
@@ -32,9 +32,9 @@
  *    
  *  Access Token Types:
  *      Definem como o pacote será assinado, contém a string access_token e opcionalmente parâmetros adicionais.
- *   - bearer (http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-06)
+ *   - bearer (http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-23)
  *      adiciona o access_token no request
- *   - mac (http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-01)
+ *   - mac (http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-04)
  *      envia uma chave mac junto com o access_token, que é usado para assinar partes do pacote.
  * */
 
@@ -159,7 +159,7 @@ namespace Jv.Web.OAuth.v2
             switch (tokenType.ToLower())
             {
                 case "bearer":
-                    return new OAuthClientBearer(ApplicationInfo, serverResponse.access_token, expiresIn, scope, serverResponse.refresh_token, HttpClient);
+                    return new OAuthClient(ApplicationInfo, new BearerAccessToken(serverResponse.access_token, expiresIn, scope, serverResponse.refresh_token, HttpClient));
             }
 
             throw new NotImplementedException("token_type of " + tokenType + " is not supported.");

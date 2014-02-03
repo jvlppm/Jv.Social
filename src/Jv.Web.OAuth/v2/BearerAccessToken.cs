@@ -1,4 +1,5 @@
-﻿using System;
+﻿// http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-23
+using System;
 using System.Net.Http;
 
 namespace Jv.Web.OAuth.v2
