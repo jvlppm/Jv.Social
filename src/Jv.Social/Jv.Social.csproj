@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DynamicWrapper.cs" />
+    <Compile Include="Google\GoogleLoginV2.cs" />
     <Compile Include="Google\GoogleLoginV1.cs" />
     <Compile Include="Google\Orkut\Get.cs" />
     <Compile Include="Google\Orkut\GroupIds.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="Google\Orkut\Person.cs" />
     <Compile Include="Google\Orkut\PersonGet.cs" />
     <Compile Include="Google\Orkut\UserIds.cs" />
+    <Compile Include="Google\Plus\GooglePlusClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Twitter\Tweet.cs" />
     <Compile Include="Twitter\TwitterClient.cs" />

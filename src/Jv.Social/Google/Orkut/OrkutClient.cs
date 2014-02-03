@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Jv.Social.Google.Orkut
@@ -30,9 +31,9 @@ namespace Jv.Social.Google.Orkut
         {
         }
 
-        public static async Task<OrkutClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator)
+        public static async Task<OrkutClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator, HttpClient httpClient = null)
         {
-            var login = new GoogleLoginV1(applicationInfo, new Uri("http://orkut.gmodules.com/social"));
+            var login = new GoogleLoginV1(applicationInfo, new Uri("http://orkut.gmodules.com/social"), httpClient);
             var oAuthClient = await login.Login(authenticator);
 
             return new OrkutClient(oAuthClient);

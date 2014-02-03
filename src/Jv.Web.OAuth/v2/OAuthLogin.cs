@@ -124,7 +124,7 @@ namespace Jv.Web.OAuth.v2
                     { "code", authorizationCode },
                     { "redirect_uri", redirectUri.ToString() },
                     { "client_id", ApplicationInfo.Key },
-                    //{ "client_secret", ApplicationInfo.Secret },
+                    { "client_secret", ApplicationInfo.Secret },
                 }, dataType: DataType.Json);
         }
 

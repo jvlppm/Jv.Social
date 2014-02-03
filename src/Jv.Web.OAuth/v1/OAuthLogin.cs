@@ -2,6 +2,7 @@
 using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.Extensions;
 using System;
+using System.Net.Http;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
@@ -14,18 +15,21 @@ namespace Jv.Web.OAuth.v1
         public Uri UrlGetRequestToken { get; private set; }
         public Uri UrlAuthorizeToken { get; private set; }
         public Uri UrlGetAccessToken { get; private set; }
+        public HttpClient HttpClient { get; private set; }
         #endregion
 
         #region Constructors
         public OAuthLogin(KeyPair applicationInfo,
             Uri urlGetRequestToken,
             Uri urlAuthorizeToken,
-            Uri urlGetAccessToken)
+            Uri urlGetAccessToken,
+            HttpClient httpClient = null)
         {
             ApplicationInfo = applicationInfo;
             UrlGetRequestToken = urlGetRequestToken;
             UrlAuthorizeToken = urlAuthorizeToken;
             UrlGetAccessToken = urlGetAccessToken;
+            HttpClient = httpClient;
         }
         #endregion
 
@@ -65,7 +69,7 @@ namespace Jv.Web.OAuth.v1
 
         protected virtual async Task<KeyPair> GetRequestToken(IWebAuthenticator authorizer)
         {
-            var oauthClient = new OAuthClient(ApplicationInfo);
+            var oauthClient = new OAuthClient(ApplicationInfo, httpClient: HttpClient);
 
             var resp = await oauthClient.Ajax(UrlGetRequestToken,
                 parameters: new HttpParameters { { "oauth_callback", (await authorizer.GetCallback()).ToString() } },
@@ -91,7 +95,7 @@ namespace Jv.Web.OAuth.v1
 
         protected virtual async Task<KeyPair> GetAccessToken(KeyPair requestToken, string oAuthVerifier)
         {
-            var oauthClient = new OAuthClient(ApplicationInfo, requestToken);
+            var oauthClient = new OAuthClient(ApplicationInfo, requestToken, HttpClient);
 
             var resp = await oauthClient.Ajax(UrlGetAccessToken,
                 parameters: new HttpParameters { { "oauth_verifier", oAuthVerifier } },

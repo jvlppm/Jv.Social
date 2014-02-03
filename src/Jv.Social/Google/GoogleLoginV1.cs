@@ -2,6 +2,7 @@
 using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.v1;
 using System;
+using System.Net.Http;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
@@ -11,11 +12,12 @@ namespace Jv.Social.Google
     {
         Uri UrlScope { get; set; }
 
-        public GoogleLoginV1(KeyPair applicationInfo, Uri urlScope)
+        public GoogleLoginV1(KeyPair applicationInfo, Uri urlScope, HttpClient httpClient = null)
             : base(applicationInfo,
                 urlGetRequestToken: new Uri("https://www.google.com/accounts/OAuthGetRequestToken"),
                 urlAuthorizeToken: new Uri("https://www.google.com/accounts/OAuthAuthorizeToken"),
-                urlGetAccessToken: new Uri("https://www.google.com/accounts/OAuthGetAccessToken"))
+                urlGetAccessToken: new Uri("https://www.google.com/accounts/OAuthGetAccessToken"),
+                httpClient: httpClient)
         {
             UrlScope = urlScope;
         }

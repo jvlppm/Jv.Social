@@ -30,9 +30,9 @@ namespace Jv.Social.Twitter
         {
         }
 
-        public static async Task<TwitterClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator)
+        public static async Task<TwitterClient> Login(KeyPair applicationInfo, IWebAuthenticator authenticator, HttpClient httpClient = null)
         {
-            var login = new TwitterLogin(applicationInfo);
+            var login = new TwitterLogin(applicationInfo, httpClient);
             var oAuthClient = await login.Login(authenticator);
 
             return new TwitterClient(oAuthClient);
