@@ -28,10 +28,26 @@ namespace Jv.Web.OAuth.v2
             AccessToken = accessToken;
         }
 
+        public override async Task<dynamic> Ajax(Uri url, HttpMethod method, HttpParameters parameters = null, DataType dataType = DataType.Automatic, WebRequestFormat requestFormat = WebRequestFormat.MultiPart)
+        {
+            try
+            {
+                return base.Ajax(url, method, parameters, dataType, requestFormat);
+            }
+            catch(WebException ex)
+            {
+                if (ex.StatusCode != System.Net.HttpStatusCode.Unauthorized || !AccessToken.CanRefresh())
+                    throw;
+            }
+
+            await AccessToken.Refresh();
+            return base.Ajax(url, method, parameters, dataType, requestFormat);
+        }
+
         protected override HttpRequestMessage CreateRequest(Uri url, HttpMethod httpMethod, HttpParameters parameters, WebRequestFormat requestFormat)
         {
             var signedParams = AccessToken.Sign(ApplicationInfo, url, httpMethod, parameters);
-            return base.CreateRequest(url, httpMethod, parameters, requestFormat);
+            return base.CreateRequest(url, httpMethod, signedParams, requestFormat);
         }
     }
 }

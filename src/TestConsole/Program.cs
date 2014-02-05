@@ -1,15 +1,18 @@
 ﻿using Jv.Social.Google;
 using Jv.Social.Google.Orkut;
+using Jv.Social.Google.Plus;
 using Jv.Social.Twitter;
 using Jv.Web.OAuth;
 using Jv.Web.OAuth.Authentication;
 using Jv.Web.OAuth.Json;
 using Jv.Web.OAuth.v1;
+using Jv.Web.OAuth.v2;
 using Jv.Web.OAuth.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,10 +27,10 @@ namespace TestConsole
 
             Test().Wait();
         }
-
+        
         private static async Task Test()
         {
-            KeyPair orkutAppInfo = new KeyPair(
+            KeyPair googleAppInfo = new KeyPair(
                 key: "176102147108.apps.googleusercontent.com",
                 secret: "glE2FgAVRf_VEl9etaOCfuDK");
 
@@ -39,7 +42,14 @@ namespace TestConsole
             {
                 using (var authenticator = new WinFormsAuthenticator())
                 {
-                    var orkutClient = await OrkutClient.Login(orkutAppInfo, authenticator);
+                    //var gPlus = await GooglePlusClient.Login(googleAppInfo, authenticator);
+                    var gPlus = new GooglePlusClient(new Jv.Web.OAuth.v2.OAuthClient(googleAppInfo, new BearerAccessToken("ya29.1.AADtN_VCY-BgfkcuIag5FEQ_2n1BL8YPd2Q7uGM76wJxI8Z8BoNRcATsR2Emcc55nt1q", null, "https://www.googleapis.com/auth/plus.login", "1/UNEHbS6OTPxYZXNZiwwy0g9sXET1qb7EPUuG09HiWJY")));
+
+                    var user = await gPlus.Ajax("people/me", HttpMethod.Get);
+
+                    Console.WriteLine(gPlus.OAuthClient.AccessToken);
+
+                    /*var orkutClient = await OrkutClient.Login(googleAppInfo, authenticator);
                     Console.WriteLine("Orkut: " + orkutClient.OAuthClient.AccessToken);
                     //var user = await orkutClient.GetCurrentUser();
 
@@ -48,7 +58,7 @@ namespace TestConsole
                     //Console.WriteLine("Orkut: {0} {1}", user.Name.GivenName, user.Name.FamilyName);
 
                     //var twitterClient = await TwitterClient.Login(twitterAppInfo, authenticator);
-                    //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);
+                    //Console.WriteLine("Twitter: " + twitterClient.OAuthClient.AccessToken);*/
                 }
             }
             catch (Jv.Web.OAuth.WebException ex)

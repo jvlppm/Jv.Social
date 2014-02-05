@@ -31,5 +31,23 @@ namespace Jv.Social.Google.Plus
 
             return new GooglePlusClient(oAuthClient);
         }
+
+        #region Core
+        public async Task<T> Get<T>(string resource, HttpParameters data = null) where T : DynamicWrapper
+        {
+            return DynamicWrapper.Create<T>((SafeObject)await Ajax(resource, HttpMethod.Get, data));
+        }
+
+        public async Task<T> Post<T>(string resource, HttpParameters data = null) where T : DynamicWrapper
+        {
+            return DynamicWrapper.Create<T>((SafeObject)await Ajax(resource, HttpMethod.Post, data));
+        }
+
+        public async Task<dynamic> Ajax(string resource, HttpMethod method, HttpParameters parameters = null)
+        {
+            var url = new Uri(string.Format("https://www.googleapis.com/plus/v1/{0}", resource));
+            return await OAuthClient.Ajax(url, method, parameters, DataType.Json, WebRequestFormat.MixedUrlMultipart);
+        }
+        #endregion
     }
 }

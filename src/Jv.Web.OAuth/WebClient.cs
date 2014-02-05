@@ -40,7 +40,7 @@ namespace Jv.Web.OAuth
             return Ajax(url, HttpMethod.Get, parameters, dataType, requestFormat);
         }
 
-        public async Task<dynamic> Ajax(Uri url,
+        public virtual async Task<dynamic> Ajax(Uri url,
             HttpMethod method,
             HttpParameters parameters = null,
             DataType dataType = DataType.Automatic,
@@ -67,6 +67,9 @@ namespace Jv.Web.OAuth
                     return CreateHttpWebRequest(url, httpMethod, parameters);
 
                 case WebRequestFormat.MixedUrlMultipart:
+                    if(parameters == null)
+                        return CreateHttpWebRequest(url, httpMethod, parameters);
+
                     Uri urlWithParams = parameters.AddToUrl(url);
                     return CreateHttpWebRequest(urlWithParams, httpMethod, parameters.FileParameters);
             }
@@ -79,14 +82,16 @@ namespace Jv.Web.OAuth
             IList<Tuple<string, HttpContent, string>> requestContent = new List<Tuple<string, HttpContent, string>>();
             MultipartFormDataContent mpart = new MultipartFormDataContent();
 
-            if (parameters != null && httpMethod != HttpMethod.Get)
+            if (parameters != null )
             {
-                foreach (var p in parameters.Fields)
-                    requestContent.Add(new Tuple<string, HttpContent, string>(p.Key, new StringContent(p.Value), null));
+                if (httpMethod != HttpMethod.Get)
+                {
+                    foreach (var p in parameters.Fields)
+                        requestContent.Add(new Tuple<string, HttpContent, string>(p.Key, new StringContent(p.Value), null));
+                }
+                foreach (var f in parameters.Files)
+                    requestContent.Add(new Tuple<string, HttpContent, string>(f.Key, new StreamContent(f.Value.Content), f.Value.Name));
             }
-
-            foreach (var f in parameters.Files)
-                requestContent.Add(new Tuple<string, HttpContent, string>(f.Key, new StreamContent(f.Value.Content), f.Value.Name));
 
             foreach (var content in requestContent.OrderBy(i => i.Item1))
             {
@@ -96,7 +101,7 @@ namespace Jv.Web.OAuth
                     mpart.Add(content.Item2, content.Item1, content.Item3);
             }
 
-            var requestUrl = httpMethod == HttpMethod.Get ? parameters.AddToUrl(url) : url;
+            var requestUrl = httpMethod == HttpMethod.Get && parameters != null ? parameters.AddToUrl(url) : url;
             return new HttpRequestMessage(httpMethod, requestUrl)
             {
                 Content = mpart.Any() ? mpart : null
