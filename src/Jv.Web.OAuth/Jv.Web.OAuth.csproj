@@ -51,6 +51,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\WebExtensions.cs" />
     <Compile Include="Helpers\Disposable.cs" />
+    <Compile Include="v2\IOAuthLogin.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Authentication\IWebAuthenticator.cs" />
     <Compile Include="v2\OAuthAccessToken.cs" />

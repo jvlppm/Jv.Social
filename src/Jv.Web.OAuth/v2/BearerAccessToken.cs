@@ -6,7 +6,7 @@ namespace Jv.Web.OAuth.v2
 {
     public class BearerAccessToken : OAuthAccessToken
     {
-        public BearerAccessToken(string accessToken, TimeSpan? expiresIn, string scope, string refreshToken, HttpClient httpClient = null)
+        public BearerAccessToken(string accessToken, TimeSpan? expiresIn, string scope, string refreshToken)
             : base(accessToken, "bearer", expiresIn, scope, refreshToken)
         {
         }

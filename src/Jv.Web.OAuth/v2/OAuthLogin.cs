@@ -50,7 +50,7 @@ using System.ServiceModel;
 
 namespace Jv.Web.OAuth.v2
 {
-    public class OAuthLogin
+    public class OAuthLogin : IOAuthLogin
     {
         #region Attributes
         public KeyPair ApplicationInfo { get; private set; }
@@ -81,9 +81,28 @@ namespace Jv.Web.OAuth.v2
             if (authenticator == null)
                 throw new ArgumentNullException("authenticator");
 
-            var authorizationCode = await RequestAuthorizationCode(authenticator);
-            var accessToken = await GetAccessToken(authorizationCode, authenticator);
-            return DecodeAccessToken(accessToken);
+            var redirectUri = await authenticator.GetCallback();
+
+            var authorizationCode = await RequestAuthorizationCode(authenticator, redirectUri);
+            var accessToken = DecodeAccessToken(await GetAccessToken(authorizationCode, redirectUri));
+            return new OAuthClient(ApplicationInfo, accessToken, this, HttpClient);
+        }
+
+        public async Task<OAuthAccessToken> RefreshToken(string refreshToken)
+        {
+            if (refreshToken == null)
+                throw new ArgumentNullException("refreshToken");
+
+            var client = new WebClient(HttpClient);
+
+            return DecodeAccessToken(await client.Ajax(
+                url: UrlGetAccessToken,
+                method: HttpMethod.Post,
+                parameters: new HttpParameters
+                {
+                    { "grant_type", "refresh_token" },
+                    { "refresh_token", refreshToken}
+                }, dataType: DataType.Json));
         }
 
         /// <summary>
@@ -94,9 +113,8 @@ namespace Jv.Web.OAuth.v2
         /// </summary>
         /// <param name="authenticator">Platform specific UI to interact with the user.</param>
         /// <returns>Authorization code granted by the server.</returns>
-        protected virtual async Task<string> RequestAuthorizationCode(IWebAuthenticator authenticator)
+        protected virtual async Task<string> RequestAuthorizationCode(IWebAuthenticator authenticator, Uri redirectUri)
         {
-            var redirectUri = await authenticator.GetCallback();
             var loginUrl = new HttpParameters
             {
                 { "response_type", "code" },
@@ -110,11 +128,10 @@ namespace Jv.Web.OAuth.v2
             return ReadUserAuthorizationCode(userAuthResult);
         }
 
-        protected virtual async Task<dynamic> GetAccessToken(string authorizationCode, IWebAuthenticator authenticator)
+        protected virtual async Task<dynamic> GetAccessToken(string authorizationCode, Uri redirectUri)
         {
-            var client = new WebClient();
+            var client = new WebClient(HttpClient);
 
-            var redirectUri = await authenticator.GetCallback();
             return await client.Ajax(
                 url: UrlGetAccessToken,
                 method: HttpMethod.Post,
@@ -145,7 +162,7 @@ namespace Jv.Web.OAuth.v2
         }
         #endregion
 
-        protected OAuthClient DecodeAccessToken(dynamic serverResponse)
+        protected OAuthAccessToken DecodeAccessToken(dynamic serverResponse)
         {
             string tokenType = serverResponse.token_type;
 
@@ -159,7 +176,7 @@ namespace Jv.Web.OAuth.v2
             switch (tokenType.ToLower())
             {
                 case "bearer":
-                    return new OAuthClient(ApplicationInfo, new BearerAccessToken(serverResponse.access_token, expiresIn, scope, serverResponse.refresh_token, HttpClient));
+                    return new BearerAccessToken(serverResponse.access_token, expiresIn, scope, serverResponse.refresh_token);
             }
 
             throw new NotImplementedException("token_type of " + tokenType + " is not supported.");

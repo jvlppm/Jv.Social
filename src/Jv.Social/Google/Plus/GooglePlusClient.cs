@@ -1,5 +1,6 @@
 ﻿using Jv.Web.OAuth;
 using Jv.Web.OAuth.Authentication;
+using Jv.Web.OAuth.Extensions;
 using Jv.Web.OAuth.v2;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,14 @@ namespace Jv.Social.Google.Plus
         {
             var login = new GoogleLoginV2(applicationInfo, new Uri("https://www.googleapis.com/auth/plus.login"), httpClient);
             var oAuthClient = await login.Login(authenticator);
+
+            return new GooglePlusClient(oAuthClient);
+        }
+
+        public static async Task<GooglePlusClient> Login(KeyPair applicationInfo, string refreshToken, HttpClient httpClient = null)
+        {
+            var login = new GoogleLoginV2(applicationInfo, new Uri("https://www.googleapis.com/auth/plus.login"), httpClient);
+            var oAuthClient = await login.Login(applicationInfo, refreshToken, httpClient);
 
             return new GooglePlusClient(oAuthClient);
         }

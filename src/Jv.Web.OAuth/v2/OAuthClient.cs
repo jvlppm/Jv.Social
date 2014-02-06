@@ -10,11 +10,15 @@ namespace Jv.Web.OAuth.v2
 {
     public class OAuthClient : WebClient
     {
+        IOAuthLogin _login;
+
         public KeyPair ApplicationInfo { get; private set; }
         public OAuthAccessToken AccessToken { get; private set; }
+        public Uri UriGetAccessToken { get; private set; }
 
         public OAuthClient(KeyPair applicationInfo,
                                 OAuthAccessToken accessToken,
+                                IOAuthLogin login,
                                 HttpClient httpClient = null)
             : base(httpClient)
         {
@@ -22,10 +26,12 @@ namespace Jv.Web.OAuth.v2
                 throw new ArgumentNullException("applicationInfo");
             if (accessToken == null)
                 throw new ArgumentNullException("accessToken");
-            
+            if (login == null)
+                throw new ArgumentNullException("login");
 
             ApplicationInfo = applicationInfo;
             AccessToken = accessToken;
+            _login = login;
         }
 
         public override async Task<dynamic> Ajax(Uri url, HttpMethod method, HttpParameters parameters = null, DataType dataType = DataType.Automatic, WebRequestFormat requestFormat = WebRequestFormat.MultiPart)
@@ -36,11 +42,11 @@ namespace Jv.Web.OAuth.v2
             }
             catch(WebException ex)
             {
-                if (ex.StatusCode != System.Net.HttpStatusCode.Unauthorized || !AccessToken.CanRefresh())
+                if (ex.StatusCode != System.Net.HttpStatusCode.Unauthorized || AccessToken.RefreshToken == null)
                     throw;
             }
 
-            await AccessToken.Refresh();
+            AccessToken = await _login.RefreshToken(AccessToken.RefreshToken);
             return base.Ajax(url, method, parameters, dataType, requestFormat);
         }
 

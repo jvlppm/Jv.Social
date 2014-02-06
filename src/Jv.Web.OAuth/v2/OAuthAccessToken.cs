@@ -51,7 +51,5 @@ namespace Jv.Web.OAuth.v2
         }
 
         public abstract HttpParameters Sign(KeyPair applicationInfo, Uri url, HttpMethod method, HttpParameters parameters);
-
-        public abstract bool CanRefresh();
     }
 }
